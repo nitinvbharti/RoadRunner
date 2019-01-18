@@ -241,7 +241,7 @@ public class RRMethodAdapter extends MethodVisitor implements Opcodes {
 	}
 
 	public SourceLocation getLocation() {
-		return new SourceLocation(this.getFileName(), this.getFileLine(), this.bci);
+		return new SourceLocation(this.getFileName(), this.getMethod(),this.getFileLine(), this.bci);
 	}
 
 	public String getFileName() {

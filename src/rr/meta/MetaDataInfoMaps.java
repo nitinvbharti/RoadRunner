@@ -264,7 +264,7 @@ public class MetaDataInfoMaps {
 		while (true) {
 			a = getAcquires().get(MetaDataInfoKeys.getLockKey(loc, true));
 			if (a == null) break;
-			loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset() + 1);
+			loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset() + 1);
 //			Yikes.yikes("making bogus loc");
 		}
 		a = new AcquireInfo(getAcquires().size(), loc, enclosing);
@@ -278,7 +278,7 @@ public class MetaDataInfoMaps {
 		while (true) {
 			a = getReleases().get(MetaDataInfoKeys.getLockKey(loc, false));
 			if (a == null) break;
-			loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset() + 1);
+			loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset() + 1);
 //			Yikes.yikes("making bogus loc");
 		}
 		a = new ReleaseInfo(getReleases().size(), loc, enclosing);
@@ -288,11 +288,11 @@ public class MetaDataInfoMaps {
 
 	public static ArrayAccessInfo makeArrayAccess(SourceLocation loc, MethodInfo enclosing, boolean isWrite) {
 		ArrayAccessInfo a;
-		loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset());
+		loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset());
 		while (true) {
 			a = getArrayAccesses().get(MetaDataInfoKeys.getArrayAccessKey(loc, isWrite));
 			if (a == null) break;
-			loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset() + 1);
+			loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset() + 1);
 //			Yikes.yikes("making bogus loc");
 		}
 		a = new ArrayAccessInfo(getArrayAccesses().size(), loc, enclosing, isWrite);
@@ -302,11 +302,11 @@ public class MetaDataInfoMaps {
 
 	public static FieldAccessInfo makeFieldAccess(SourceLocation loc, MethodInfo enclosing, boolean isWrite, FieldInfo field) {
 		FieldAccessInfo a;
-		loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset());
+		loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset());
 		while (true) {
 			a = getFieldAccesses().get(MetaDataInfoKeys.getFieldAccessKey(loc, enclosing, field, isWrite));
 			if (a == null) break;
-			loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset() + 1);
+			loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset() + 1);
 //			Yikes.yikes("making bogus loc");
 		}
 		a = new FieldAccessInfo(getFieldAccesses().size(), loc, enclosing, isWrite, field);
@@ -359,7 +359,7 @@ public class MetaDataInfoMaps {
 		while (true) {
 			a = invokes2.get(MetaDataInfoKeys.getInvokeKey(loc, method));
 			if (a == null) break;
-			loc = new SourceLocation(loc.getFile(), loc.getLine(), loc.getOffset() + 1);
+			loc = new SourceLocation(loc.getFile(), loc.getMethod(), loc.getLine(), loc.getOffset() + 1);
 		}
 		a = new InvokeInfo(invokes2.size(), loc, method, enclosing);
 		invokes2.put(a);

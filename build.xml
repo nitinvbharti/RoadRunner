@@ -202,7 +202,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<javac srcdir="${src.dir}/acme" destdir="${classes.dir}" debug="true"/>
 		<javac srcdir="${src.dir}" includes="rr/loader/ClassLoaderTransformer.java" destdir="${classes.dir}" debug="true"/>
 		<java classname="rr.loader.ClassLoaderTransformer" classpath="${classes.dir}"/>
-		<copy file="/tmp/RR_ClassLoader.class" tofile="${classes.dir}/java/lang/ClassLoader.class"/>
+		<copy file="classes/RR_ClassLoader.class" tofile="${classes.dir}/java/lang/ClassLoader.class"/>
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.dir}/ClassLoaderWithListener.jar" basedir="${classes.dir}"/>
 	</target>

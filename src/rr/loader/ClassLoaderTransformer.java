@@ -86,7 +86,7 @@ public class ClassLoaderTransformer extends ClassWriter {
 		ClassReader reader = new ClassReader(in);
 		ClassLoaderTransformer t = new ClassLoaderTransformer(reader);
 		reader.accept(t, 0);
-		FileOutputStream out = new FileOutputStream(new File("/tmp/RR_ClassLoader.class"));
+		FileOutputStream out = new FileOutputStream(new File("classes/RR_ClassLoader.class"));
 		out.write(t.toByteArray());
 		out.close();
 	}

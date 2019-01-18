@@ -3,7 +3,7 @@
 Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
                     and Stephen Freund (Williams College) 
 
-All rights reserved.  Revision $REV ($DATE)
+All rights reserved.  
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -36,46 +36,72 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ******************************************************************************/
 
-package acme.util.count;
+package test;
 
+public class Figure4a extends Thread {
 
-final public class ThreadLocalCounter extends AbstractCounter {
+	static int x;
+	static int y;
+	static final Object m = new Object();
+	
+	static int nVar;
+	static final Object n = new Object();
 
-	final long[] counts;
-	
-	public ThreadLocalCounter(String group, String name, int n) {
-		super(group, name);
-		counts = new long[8 * n];  // 8 * 8 == size of cache line
-	}
-		
-	public void inc(int tid) {
-		counts[tid << 3]++;
-	}
-	
-	public void add(int tid, long n) {
-		counts[tid << 3] += n;
-	}
-	
-	// SB: Added from WDC
-	public long getLocal(int tid) {
-		return counts[tid << 3];
-	}
-	
-	public long getCount() {
-		return total();
-	}
-	
-	public long total() {
-		long total = 0;
-		for (long x : counts) {
-			total += x;
+	// Predictable race: none
+	// DC-race: x
+
+	static void sync(Object lock) {
+		synchronized (lock) {
+			if (lock == n) nVar = 1;
+			else throw new RuntimeException();
 		}
-		return total;
 	}
-
+	
+	static void sleepSec(float sec) {
+		try{
+			Thread.sleep((long)(sec * 1000));
+		} catch(InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	@Override
-	public String get() {
-		return String.format("%,10d", total());
+	public void run() {
+		synchronized(m) {
+			x = 1;
+			y = 1;
+		}
+	}
+	
+	public static class Test2 extends Thread implements Runnable {
+		public void run() {
+			sleepSec(1);
+			synchronized(m) {
+				sync(n);
+				sleepSec(3);
+				sync(n);
+				int t = y;
+			}
+		}
+	}
+	
+	public static class Test3 extends Thread implements Runnable {
+		public void run() {
+			sleepSec(2);
+			sync(n);
+			int t = x;
+		}
 	}
 
+	public static void main(String args[]) throws Exception {
+		final Figure4a t1 = new Figure4a();
+		final Test2 t2 = new Test2();
+		final Test3 t3 = new Test3();
+		t1.start();
+		t2.start();
+		t3.start();
+		t1.join();
+		t2.join();
+		t3.join();
+	}
 }

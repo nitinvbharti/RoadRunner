@@ -267,6 +267,28 @@ public class WeakIdentityHashMap<K,V> {
         threshold = (DEFAULT_INITIAL_CAPACITY);
         table = new Entry[DEFAULT_INITIAL_CAPACITY];
     }
+    
+	// SB: Added this from WDC
+    public WeakIdentityHashMap(int initialCapacity, WeakIdentityHashMap mapToCopy) {
+    	this(initialCapacity, DEFAULT_LOAD_FACTOR);
+    	//Copy non-null entries from mapToCopy to new map
+    	Entry[] src = mapToCopy.getTable();
+    	for (int j = 0; j < src.length; ++j) {
+            Entry<K,V> e = src[j];
+            src[j] = null;
+            while (e != null) {
+                Entry<K,V> next = e.next;
+                Object key = e.get();
+                if (key == null) {
+                    e.next = null;  // Help GC
+                    e.value = null; //  "   "
+                } else {
+                	this.put(e.getKey(), e.getValue());
+                }
+                e = next;
+            }
+        }
+    }
 
     // internal utilities
 
@@ -358,6 +380,20 @@ public class WeakIdentityHashMap<K,V> {
             return 0;
         expungeStaleEntries();
         return size;
+    }
+    
+    public int tableSize() {
+    	if (table == null) {
+    		return 0;
+    	}
+    	return table.length;
+    }
+    
+    public float loadFactorSize() {
+    	if (loadFactor < 0) {
+    		return 0;
+    	}
+    	return loadFactor;
     }
 
     /**

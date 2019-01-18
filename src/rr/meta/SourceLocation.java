@@ -44,26 +44,29 @@ import acme.util.Util;
 
 public class SourceLocation implements Serializable, Comparable<SourceLocation> {
 
-	public static final SourceLocation NULL = new SourceLocation("?", -1, -1);
+	public static final SourceLocation NULL = new SourceLocation("?", null, -1, -1);
 	
 	protected final String file;
+	protected final MethodInfo method;
 	protected final int line;
 	protected final int offset;
 
-	public SourceLocation(String file, int line, int offset) {
+	// SB: Added method from WDC project
+	public SourceLocation(String file, MethodInfo method, int line, int offset) {
 		this.file = file;
+		this.method = method;
 		this.line = line;
 		this.offset = offset;
 	}
 
-	private SourceLocation(String file, int line) {
+	/*private SourceLocation(String file, int line) {
 		this(file, line, -1);
-	}
+	}*/
 
 
 	@Override
 	public String toString() {
-		return (this == NULL ? "NullLoc" : file.substring(file.lastIndexOf('/')+1) + ":" + line + (offset > -1 ? ":" + offset : "")).intern();
+		return (this == NULL ? "NullLoc" : method + " (" + file.substring(file.lastIndexOf('/')+1) + "):" + line + (offset > -1 ? ":" + offset : "")).intern();
 	}
 
 	public static String toKeyString(String file, int line, int offset) {
@@ -82,6 +85,10 @@ public class SourceLocation implements Serializable, Comparable<SourceLocation> 
 		return file;
 	}
 	
+	public MethodInfo getMethod() {
+		return method;
+	}
+	
 	public int getLine() {
 		return line;
 	}
@@ -92,6 +99,7 @@ public class SourceLocation implements Serializable, Comparable<SourceLocation> 
 
 	public int compareTo(SourceLocation loc) {
 		int x = file.compareTo(loc.file);
+		if (x == 0) x = method.compareTo(loc.method);
 		if (x == 0) x = line - loc.line;
 		if (x == 0) x = offset - loc.offset;
 		return x;
@@ -102,6 +110,7 @@ public class SourceLocation implements Serializable, Comparable<SourceLocation> 
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((file == null) ? 0 : file.hashCode());
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + line;
 		result = prime * result + offset;
 	

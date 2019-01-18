@@ -32,13 +32,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# SB: I changed a few exports to work on GNU/Linux systems
 # Must be a 1.7 or later VM
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/
+#export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 # These two lines are for OS X, to set the max memory to just under
 # the total machine memory
-GIGS=`system_profiler SPHardwareDataType | grep Memory | cut -f2 -d: | cut -f1 -dG | sed -e "s/ //g" `
-export JVM_ARGS="-Xmx${GIGS}g -Xms1g"
+#GIGS=`system_profiler SPHardwareDataType | grep Memory | cut -f2 -d: | cut -f1 -dG | sed -e "s/ //g" `
+#export JVM_ARGS="-Xmx${GIGS}g -Xms1g"
+export JVM_ARGS="-Xmx3g -Xms1g -Xloggc:/dev/stdout"
 
 
 export PATH=${PATH}:`pwd`/auto/bin:`pwd`/bin

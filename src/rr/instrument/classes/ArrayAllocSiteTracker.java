@@ -83,7 +83,7 @@ public class ArrayAllocSiteTracker extends RRClassAdapter {
 		}
 
 		public void newArray() {
-			final SourceLocation loc = new SourceLocation(this.getFileName(), this.getFileLine(), this.getByteCodeIndex());
+			final SourceLocation loc = new SourceLocation(this.getFileName(), this.getMethod(), this.getFileLine(), this.getByteCodeIndex());
 			if (ArrayStateFactory.arrayOption.get() != ArrayStateFactory.ArrayMode.NONE && ArrayFilterTool.arrayAllocsToWatch.get().test(loc.getKey()) == StringMatchResult.ACCEPT) {
 				super.visitInsn(Opcodes.DUP);
 				super.visitLdcInsn(this.getByteCodeIndex());

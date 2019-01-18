@@ -74,6 +74,18 @@ public class Assert {
 		}
 	}
 
+	public static void assertFalse(boolean b) {
+		if (b) {
+			Assert.fail("Assertion Failure");
+		}
+	}
+
+	public static void assertFalse(boolean b, String s) {
+		if (b) {
+			Assert.fail("Assertion Failure: %s", s);
+		}
+	}
+
 	public static void assertHoldsLock(Object l) {
 		assertTrue(Thread.holdsLock(l));
 	}

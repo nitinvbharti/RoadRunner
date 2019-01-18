@@ -282,7 +282,24 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		}
 		return locks;
 	}
+	
+	// SB: Added from WDC implementation
+	public final ShadowLock getInnermostLock() {
+		if (lockDataCount == 0) {
+			return null;
+		}
+		return lockDataMap[lockDataCount - 1];
+	}
 
+	// SB: Added the following two methods from WDC for cheap access to stack of held locks.
+	public final int getNumLocksHeld() {
+		return lockDataCount;
+	}
+
+	public final ShadowLock getHeldLock(int index) {
+		return lockDataMap[index];
+	}
+	
 	/*
 	 * @RRInternal.  Handles method stack. 
 	 */
