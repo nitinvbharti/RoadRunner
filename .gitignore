@@ -3,5 +3,6 @@ build
 classes
 docs
 
-./benchmarks/avrora/scratch/
-./test/*.class
+benchmarks/avrora/scratch/*
+test/*.class
+log
