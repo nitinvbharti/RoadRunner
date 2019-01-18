@@ -268,7 +268,7 @@ public class WeakIdentityHashMap<K,V> {
         table = new Entry[DEFAULT_INITIAL_CAPACITY];
     }
     
-	// SB: Added this from WDC
+	// SB: Added this from Vindicator
     public WeakIdentityHashMap(int initialCapacity, WeakIdentityHashMap mapToCopy) {
     	this(initialCapacity, DEFAULT_LOAD_FACTOR);
     	//Copy non-null entries from mapToCopy to new map

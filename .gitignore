@@ -2,3 +2,6 @@ auto
 build
 classes
 docs
+
+./benchmarks/avrora/scratch/
+./test/*.class

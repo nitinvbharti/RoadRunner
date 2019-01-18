@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 # Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-#                     and Stephen Freund (Williams College) 
+#                     and Stephen Freund (Williams College)
 #
-# All rights reserved.  
-# 
+# All rights reserved.
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met:
-# 
+#
 #    * Redistributions of source code must retain the above copyright
 #      notice, this list of conditions and the following disclaimer.
 #
@@ -55,6 +55,8 @@ for i in `ls auto/tools/fasttrack_long/*.java`; do
     cat tmp.java >> $i
 done
 
+# SB: Clean cruft
+rm tmp.java
 rm auto/tools/fasttrack_long/*.bak
 
 mkdir -p auto/tools/util
