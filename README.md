@@ -1,13 +1,16 @@
 # Instructions
 
+Check INSTALL.txt and `rrrun -help`.
+
 ## Browsing the Source
 
+Read the comments at the beginning of the RRMain class.
 
 ## Examples
 
 Note that RoadRunner current supports only till Java 1.8.
 
-+ rrrun -tool=FT2 test.Test
++ rrrun -tool=FT2 test.Test -benchmark=10 -warmup=3
 
 + ./TEST -tool=FT2 -array=FINE -field=FINE -noTidGC -availableProcessors=4 -benchmark=1 -warmup=0 RRBench
 

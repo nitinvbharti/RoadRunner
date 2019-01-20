@@ -1,9 +1,9 @@
 /******************************************************************************
 
 Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
+                    and Stephen Freund (Williams College)
 
-All rights reserved.  
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -123,13 +123,13 @@ final public class LastTool extends Tool {
 	@Override
 	public void exit(MethodEvent me) {}
 	@Override
-	public void acquire(AcquireEvent ae) {}	
+	public void acquire(AcquireEvent ae) {}
 	@Override
 	public void release(ReleaseEvent re) {}
 	@Override
-	public boolean testAcquire(AcquireEvent ae) { return true; }	
+	public boolean testAcquire(AcquireEvent ae) { return true; }
 	@Override
-	public boolean testRelease(ReleaseEvent ae) { return true; }	
+	public boolean testRelease(ReleaseEvent ae) { return true; }
 	@Override
 	public void preWait(WaitEvent we) {}
 	@Override
@@ -141,7 +141,7 @@ final public class LastTool extends Tool {
 	@Override
 	public void preSleep(SleepEvent e) {}
 	@Override
-	public void postSleep(SleepEvent e) {}	
+	public void postSleep(SleepEvent e) {}
 	@Override
 	public void preJoin(JoinEvent je) {}
 	@Override
@@ -158,7 +158,7 @@ final public class LastTool extends Tool {
 
 	@Override
 	public void classInitialized(ClassInitializedEvent e) { }
-	
+
 	@Override
 	public void classAccessed(ClassAccessedEvent e) { }
 

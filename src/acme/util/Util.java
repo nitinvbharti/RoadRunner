@@ -1,40 +1,34 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
-    * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************************/
+ * 
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ * 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ ******************************************************************************/
 
 package acme.util;
 
@@ -56,7 +50,6 @@ import acme.util.time.PeriodicTaskStmt;
 import acme.util.time.TimedExpr;
 import acme.util.time.TimedStmt;
 
-
 /**
  * Various utility routines.
  */
@@ -75,48 +68,55 @@ public class Util {
 	};
 
 	public static final String ERROR_PREFIX = "## ";
-	public static final CommandLineOption<Boolean> quietOption = 
-		CommandLine.makeBoolean("quiet", false, CommandLineOption.Kind.STABLE, "Quiet mode.  Will not print debugging or logging messages.");
+	public static final CommandLineOption<Boolean> quietOption = CommandLine.makeBoolean("quiet",
+			false, CommandLineOption.Kind.STABLE,
+			"Quiet mode.  Will not print debugging or logging messages.");
 
-	public static CommandLineOption<Integer> logDepthOption = 
-			CommandLine.makeInteger("logDepth", 100, CommandLineOption.Kind.STABLE, "Ignore log messages greater than this nesting depth.");
-	
-	public static CommandLineOption<String> outputPathOption = 
-		CommandLine.makeString("logs", "log", CommandLineOption.Kind.STABLE, "The path to the directory where log files will be stored.");
+	public static CommandLineOption<Integer> logDepthOption = CommandLine.makeInteger("logDepth",
+			100, CommandLineOption.Kind.STABLE,
+			"Ignore log messages greater than this nesting depth.");
 
-	public static CommandLineOption<String> outputFileOption = 
-		CommandLine.makeString("out", "", CommandLineOption.Kind.STABLE, "Log file name for Util.out.",
-				new Runnable() { public void run() {  
+	public static CommandLineOption<String> outputPathOption = CommandLine.makeString("logs", "log",
+			CommandLineOption.Kind.STABLE,
+			"The path to the directory where log files will be stored.");
+
+	public static CommandLineOption<String> outputFileOption = CommandLine.makeString("out", "",
+			CommandLineOption.Kind.STABLE, "Log file name for Util.out.", new Runnable() {
+				public void run() {
 					String errFile = errorFileOption.get();
 					String outFile = outputFileOption.get();
 					if (errFile.equals(outFile)) {
 						Util.out = Util.err;
 					} else {
 						Assert.assertTrue(outFile.length() > 0, "Bad File");
-						setOut(new PrintWriter(new SplitOutputWriter(out, Util.openLogFile(outFile)), true));
-					} 
-				} } );
+						setOut(new PrintWriter(
+								new SplitOutputWriter(out, Util.openLogFile(outFile)), true));
+					}
+				}
+			});
 
-	public static CommandLineOption<String> errorFileOption = 
-		CommandLine.makeString("err", "", CommandLineOption.Kind.STABLE, "Log file name for Util.err.",
-				new Runnable() { public void run() {  
+	public static CommandLineOption<String> errorFileOption = CommandLine.makeString("err", "",
+			CommandLineOption.Kind.STABLE, "Log file name for Util.err.", new Runnable() {
+				public void run() {
 					String errFile = errorFileOption.get();
 					String outFile = outputFileOption.get();
 					if (errFile.equals(outFile)) {
 						Util.err = Util.out;
 					} else {
 						Assert.assertTrue(errFile.length() > 0, "Bad File");
-						setErr(new PrintWriter(new SplitOutputWriter(err, Util.openLogFile(errFile)), true));
+						setErr(new PrintWriter(
+								new SplitOutputWriter(err, Util.openLogFile(errFile)), true));
 					}
-				} } );
-	
+				}
+			});
 
 	/**
 	 * Print a message to the err stream, preceeded by ##
 	 */
 	public static void error(String format, Object... args) {
-		synchronized(Util.class) {
-			Util.err.println(String.format(ERROR_PREFIX + format, args).replaceAll("\n", "\n" + ERROR_PREFIX));
+		synchronized (Util.class) {
+			Util.err.println(String.format(ERROR_PREFIX + format, args).replaceAll("\n",
+					"\n" + ERROR_PREFIX));
 		}
 	}
 
@@ -131,7 +131,7 @@ public class Util {
 	 * Print a message to the out stream.
 	 */
 	public static void printf(String format, Object... args) {
-		synchronized(Util.class) {
+		synchronized (Util.class) {
 			pad();
 			String msg = String.format(format, args);
 			if (!msg.endsWith("\n")) {
@@ -174,13 +174,12 @@ public class Util {
 			return lo.run();
 		} finally {
 			status.logLevel--;
-			logf("%.3g sec",(System.currentTimeMillis() - time) / 1000.0);
+			logf("%.3g sec", (System.currentTimeMillis() - time) / 1000.0);
 		}
 	}
 
 	/**
-	 * Run the timed statement, reporting how long it took.
-	 * Returns time in milliseconds.
+	 * Run the timed statement, reporting how long it took. Returns time in milliseconds.
 	 */
 	public static long log(TimedStmt lo) throws Exception {
 		ThreadStatus status = threadStatus.get();
@@ -192,8 +191,8 @@ public class Util {
 			lo.run();
 		} finally {
 			status.logLevel--;
-			d = (System.currentTimeMillis() - time) ;
-			logf("%.3g sec",d / 1000.0);
+			d = (System.currentTimeMillis() - time);
+			logf("%.3g sec", d / 1000.0);
 		}
 		return d;
 	}
@@ -208,7 +207,7 @@ public class Util {
 		try {
 			return lo.run();
 		} finally {
-			status.logLevel--;			
+			status.logLevel--;
 		}
 	}
 
@@ -222,10 +221,9 @@ public class Util {
 		try {
 			lo.run();
 		} finally {
-			status.logLevel--;			
+			status.logLevel--;
 		}
 	}
-
 
 	private static String prefix() {
 		String prefix = Thread.currentThread().getName();
@@ -245,7 +243,7 @@ public class Util {
 		if (quietOption.get() || logDepthOption.get() < status.logLevel) {
 			return;
 		}
-		synchronized(Util.class) {
+		synchronized (Util.class) {
 			pad();
 			out.printf("[" + prefix() + s + "]\n", ops);
 		}
@@ -266,14 +264,15 @@ public class Util {
 	}
 
 	/**
-	 * Log to out, unless -quiet is specified.  Add a new line afterword 8 calls to newline.  Used in Monitor.
+	 * Log to out, unless -quiet is specified. Add a new line afterword 8 calls to newline. Used in
+	 * Monitor.
 	 */
 	public static void lognl(String s) {
 		ThreadStatus status = threadStatus.get();
 		if (quietOption.get() || logDepthOption.get() < status.logLevel) {
 			return;
 		}
-		synchronized(Util.class) {
+		synchronized (Util.class) {
 			if (status.newLineCount == 0) {
 				pad();
 			} else if (status.newLineCount == 8) {
@@ -289,27 +288,27 @@ public class Util {
 	 */
 	public static void message(String s, Object... ops) {
 		ThreadStatus status = threadStatus.get();
-		synchronized(Util.class) {
+		synchronized (Util.class) {
 			pad();
 			out.printf("[" + prefix() + s + "]\n", ops);
 		}
 	}
 
-
 	/*******/
 
-	private static WeakIdentityHashMap<Object,String> ids = new WeakIdentityHashMap<Object,String>();
+	private static WeakIdentityHashMap<Object, String> ids = new WeakIdentityHashMap<Object, String>();
 	private static int idCounter = 1;
-	
+
 	/**
 	 * Return identity string for any object.
 	 */
 	public static String objectToIdentityString(Object target) {
-		if (target == null) return "null";
+		if (target == null)
+			return "null";
 		if (false) { // set to true for more detailed identity info
 			return String.format("0x%08X (%s)", Util.identityHashCode(target), target.getClass());
 		} else {
-			synchronized(Util.class) {
+			synchronized (Util.class) {
 				String x = ids.get(target);
 				if (x == null) {
 					x = String.format("@%02X", idCounter++);
@@ -345,7 +344,7 @@ public class Util {
 	}
 
 	/******************/
- 
+
 	/**
 	 * Get an environment variable, or the defaultVal if it is not defined.
 	 */
@@ -356,7 +355,6 @@ public class Util {
 		}
 		return p;
 	}
-
 
 	/*****************/
 
@@ -371,8 +369,6 @@ public class Util {
 			super(out, true);
 			this.lock = Util.class;
 		}
-
-
 
 	}
 
@@ -414,7 +410,7 @@ public class Util {
 			i = 0;
 		}
 		String res = prefix + i + suffix;
-		counter.put(prefix, i+1);
+		counter.put(prefix, i + 1);
 		return res;
 	}
 
@@ -436,14 +432,14 @@ public class Util {
 	 * Open a file, at the end of the output path option.
 	 */
 	static public NamedFileWriter openLogFile(String name) {
-		try {	
-//			new File(outputPathOption.get()).mkdirs();
+		try {
+			// new File(outputPathOption.get()).mkdirs();
 			return new NamedFileWriter(makeLogFileName(name));
 		} catch (IOException e) {
 			Assert.fail(e);
 			return null;
 		}
-	}		
+	}
 
 	/******************/
 
@@ -454,7 +450,8 @@ public class Util {
 	 */
 	public static void addToPeriodicTasks(PeriodicTaskStmt s) {
 		periodicTasks.add(s);
-		if (periodicTasks.size() == 1) periodic.start();
+		if (periodicTasks.size() == 1)
+			periodic.start();
 	}
 
 	private static Thread periodic = new Thread(new Runnable() {
@@ -482,9 +479,7 @@ public class Util {
 
 			}
 		}
-	},
-	"Periodic Tasks");
-
+	}, "Periodic Tasks");
 
 	/******************/
 	private static Vector<TimedStmt> runQueue = new Vector<TimedStmt>();
@@ -492,7 +487,6 @@ public class Util {
 	private static boolean runningQueueAlready = false;
 	private static int THREADS = 1;
 
-	
 	/**
 	 * Add a routine to run when runtime exits.
 	 */
@@ -519,7 +513,8 @@ public class Util {
 							Assert.panic(e);
 						}
 					}
-				}})).start();
+				}
+			})).start();
 		}
 		for (Thread t : ts) {
 			try {
@@ -527,8 +522,8 @@ public class Util {
 			} catch (InterruptedException e) {
 				Assert.fail(e);
 			}
-		}  
-	}	
+		}
+	}
 
 	/**
 	 * Call this instead of System.exit.

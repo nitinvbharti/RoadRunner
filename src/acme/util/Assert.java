@@ -1,9 +1,9 @@
 /******************************************************************************
 
 Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
+                    and Stephen Freund (Williams College)
 
-All rights reserved.  
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package acme.util;
 
- 
+
 /**
  * Routines to assert conditions are true, to fail, and to panic.  Panic is reserved for when the JVM will not be able to shutdown gracefully.
  */
@@ -48,7 +48,7 @@ public class Assert {
 	static private int numWarnings = 0;
 	static private boolean failed = false;
 	static private String failedReason = "";
-	
+
 	public static void warn(String format, Object... args) {
 		synchronized(Util.class) {
 			//			Util.pad();
@@ -57,7 +57,7 @@ public class Assert {
 			numWarnings++;
 		}
 	}
-	
+
 	public static void warn(Throwable e) {
 		warn("%s", e);
 	}
@@ -105,7 +105,7 @@ public class Assert {
 	}
 
 	public static void fail(String s, Object... args) {
-		Assert.fail(String.format(s, args), new Throwable()); 
+		Assert.fail(String.format(s, args), new Throwable());
 	}
 
 	public static void fail(String s, Throwable e) {
@@ -138,7 +138,7 @@ public class Assert {
 	}
 
 	public static void panic(String s, Object... args) {
-		panic(String.format(s, args)); 
+		panic(String.format(s, args));
 	}
 
 	public static void panic(Throwable e) {
@@ -168,13 +168,13 @@ public class Assert {
 	public static boolean getFailed() {
 		return Assert.failed;
 	}
-	
+
 	public static String getFailedReason() {
 		return Assert.failedReason;
 	}
 
 	/*****************/
-	
+
 	public static int getNumWarnings() {
 		return Assert.numWarnings;
 	}
