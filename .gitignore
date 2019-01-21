@@ -4,5 +4,13 @@ classes
 docs
 
 benchmarks/avrora/scratch/*
+benchmarks/fop/scratch/*
+benchmarks/jython/scratch/*
+benchmarks/luindex/scratch/*
+benchmarks/lusearch/scratch/*
+benchmarks/pmd/scratch/*
+benchmarks/tomcat/scratch/*
+benchmarks/xalan/scratch/*
+
 test/*.class
 log

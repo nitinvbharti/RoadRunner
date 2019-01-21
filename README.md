@@ -1,6 +1,6 @@
 # Instructions
 
-Check INSTALL.txt and `rrrun -help`.
+This document augments instructions that are already provided by the unmodified RoadRunner framework. Check `INSTALL.txt` and `rrrun -help`.
 
 ## Browsing the Source
 
@@ -16,7 +16,37 @@ Note that RoadRunner current supports only till Java 1.8.
 
 + rrrun -classpath=original.jar -tool=FT2 -noTidGC -noxml Main -t 4 -s small (for avrora)
 
+## Benchmarks
+
+The following benchmarks should work with RoadRunner.
+
+    + Working
+        + avrora
+        + batik
+        + fop
+        + h2
+        + jython
+        + luindex
+        + lusearch
+        + pmd
+        + sunflow
+        + tomcat
+
+I haven't been able to get the following to work, they seem to fail in vanilla RoadRunner.
+
+    + Not working
+        + crypt
+        + lufact
+        + moldyn
+        + montecarlo
+        + raytracer
+        + series
+        + sor
+        + sparsematmult
+        + xalan
+
 ## Questions
+
 
 FIXME: The following are not working.
 

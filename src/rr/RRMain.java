@@ -33,15 +33,20 @@
 package rr;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
+import acme.util.Assert;
+import acme.util.Util;
+import acme.util.count.Counter;
+import acme.util.io.URLUtils;
+import acme.util.option.CommandLine;
+import acme.util.option.CommandLineOption;
+import acme.util.time.TimedStmt;
 import rr.instrument.Instrumentor;
-import rr.instrument.classes.ArrayAllocSiteTracker;
 import rr.instrument.classes.CloneFixer;
 import rr.instrument.classes.ThreadDataThunkInserter;
 import rr.loader.InstrumentingDefineClassLoader;
@@ -56,14 +61,6 @@ import rr.state.update.Updaters;
 import rr.tool.RR;
 import rr.tool.Tool;
 import rr.tool.ToolVisitor;
-import acme.util.Assert;
-import acme.util.StackDump;
-import acme.util.Util;
-import acme.util.count.Counter;
-import acme.util.io.URLUtils;
-import acme.util.option.CommandLine;
-import acme.util.option.CommandLineOption;
-import acme.util.time.TimedStmt;
 
 /*
  * The Main class for RoadRunner: creates tool chain, processes flags, runs the target program.

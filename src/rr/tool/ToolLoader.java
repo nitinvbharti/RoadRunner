@@ -1,39 +1,33 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
- * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ * 
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ * 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
  ******************************************************************************/
 
 package rr.tool;
@@ -47,10 +41,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import rr.state.agent.ThreadStateExtensionAgent;
 import acme.util.Assert;
 import acme.util.Util;
 import acme.util.time.TimedStmt;
+import rr.state.agent.ThreadStateExtensionAgent;
 
 public class ToolLoader extends URLClassLoader {
 
@@ -91,12 +85,10 @@ public class ToolLoader extends URLClassLoader {
 						for (Object s : p.keySet()) {
 							if (abbrevs.containsKey(s)) {
 								final Entry entry = abbrevs.get(s);
-								Util.log("Tool " + s + " is already mapped to "
-										+ entry.toolName + " from " + entry.loc);
+								Util.log("Tool " + s + " is already mapped to " + entry.toolName
+										+ " from " + entry.loc);
 							} else {
-								abbrevs.put((String) s,
-										new Entry(p.getProperty((String) s),
-												prop));
+								abbrevs.put((String) s, new Entry(p.getProperty((String) s), prop));
 							}
 						}
 
@@ -145,7 +137,7 @@ public class ToolLoader extends URLClassLoader {
 		final String expandAbbrev = expandAbbrev(expanded);
 		if (expandAbbrev != null) {
 			expanded = expandAbbrev;
-		} 
+		}
 		expanded = expanded.replace(".", "/");
 		InputStream in = getToolAsStream(expanded);
 		ThreadStateExtensionAgent.registerTool(this, expanded, in);
@@ -159,8 +151,8 @@ public class ToolLoader extends URLClassLoader {
 			String tool = v.toolName;
 			String pkg = tool.substring(0, tool.lastIndexOf('.'));
 			tool = tool.substring(tool.lastIndexOf('.') + 1);
-			result += String.format("%6s : %-30s    (package: %s, prop: %s)\n",
-					key, tool, pkg, v.loc);
+			result += String.format("%6s : %-30s    (package: %s, prop: %s)\n", key, tool, pkg,
+					v.loc);
 		}
 		return result + "\n";
 	}
