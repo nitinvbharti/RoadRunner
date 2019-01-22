@@ -1,46 +1,38 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
-    * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************************/
+ * 
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ * 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ ******************************************************************************/
 
 /*
- * @(#)WeakHashMap.java	1.30 04/02/19
- *
- * Copyright 2004 Sun Microsystems, Inc. All rights reserved.  
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * @(#)WeakHashMap.java 1.30 04/02/19 Copyright 2004 Sun Microsystems, Inc. All rights reserved. SUN
+ * PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 package acme.util.identityhash;
@@ -49,135 +41,121 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-
 /**
- * Version of the java library class that removes some unnecessary features and works
- * with Util.identityHashcode. Also adds the method
- * <code>applyToAllActiveValues</code>, for applying a "higher-order" function
- * to all values with non-null keys. (i.e. keys whose references haven't 
- * disappeared). There are no absolute guarantees that a value's key is still
- * non-null when the function is applied to the value.
+ * Version of the java library class that removes some unnecessary features and works with
+ * Util.identityHashcode. Also adds the method <code>applyToAllActiveValues</code>, for applying a
+ * "higher-order" function to all values with non-null keys. (i.e. keys whose references haven't
+ * disappeared). There are no absolute guarantees that a value's key is still non-null when the
+ * function is applied to the value.
  */
 
 /**
- * A hashtable-based <tt>Map</tt> implementation with <em>weak keys</em>.
- * An entry in a <tt>WeakHashMap</tt> will automatically be removed when
- * its key is no longer in ordinary use.  More precisely, the presence of a
- * mapping for a given key will not prevent the key from being discarded by the
- * garbage collector, that is, made finalizable, finalized, and then reclaimed.
- * When a key has been discarded its entry is effectively removed from the map,
- * so this class behaves somewhat differently than other <tt>Map</tt>
- * implementations.
+ * A hashtable-based <tt>Map</tt> implementation with <em>weak keys</em>. An entry in a
+ * <tt>WeakHashMap</tt> will automatically be removed when its key is no longer in ordinary use.
+ * More precisely, the presence of a mapping for a given key will not prevent the key from being
+ * discarded by the garbage collector, that is, made finalizable, finalized, and then reclaimed.
+ * When a key has been discarded its entry is effectively removed from the map, so this class
+ * behaves somewhat differently than other <tt>Map</tt> implementations.
  *
- * <p> Both null values and the null key are supported. This class has
- * performance characteristics similar to those of the <tt>IdentityHashMap</tt>
- * class, and has the same efficiency parameters of <em>initial capacity</em>
- * and <em>load factor</em>.
+ * <p>
+ * Both null values and the null key are supported. This class has performance characteristics
+ * similar to those of the <tt>IdentityHashMap</tt> class, and has the same efficiency parameters of
+ * <em>initial capacity</em> and <em>load factor</em>.
  *
- * <p> Like most collection classes, this class is not synchronized.  A
- * synchronized <tt>WeakHashMap</tt> may be constructed using the
- * <tt>Collections.synchronizedMap</tt> method.
+ * <p>
+ * Like most collection classes, this class is not synchronized. A synchronized <tt>WeakHashMap</tt>
+ * may be constructed using the <tt>Collections.synchronizedMap</tt> method.
  *
- * <p> This class is intended primarily for use with key objects whose
- * <tt>equals</tt> methods test for object identity using the
- * <tt>==</tt> operator.  Once such a key is discarded it can never be
- * recreated, so it is impossible to do a lookup of that key in a
- * <tt>WeakHashMap</tt> at some later time and be surprised that its entry
- * has been removed.  This class will work perfectly well with key objects
- * whose <tt>equals</tt> methods are not based upon object identity, such
- * as <tt>String</tt> instances.  With such recreatable key objects,
- * however, the automatic removal of <tt>WeakHashMap</tt> entries whose
- * keys have been discarded may prove to be confusing.
+ * <p>
+ * This class is intended primarily for use with key objects whose <tt>equals</tt> methods test for
+ * object identity using the <tt>==</tt> operator. Once such a key is discarded it can never be
+ * recreated, so it is impossible to do a lookup of that key in a <tt>WeakHashMap</tt> at some later
+ * time and be surprised that its entry has been removed. This class will work perfectly well with
+ * key objects whose <tt>equals</tt> methods are not based upon object identity, such as
+ * <tt>String</tt> instances. With such recreatable key objects, however, the automatic removal of
+ * <tt>WeakHashMap</tt> entries whose keys have been discarded may prove to be confusing.
  *
- * <p> The behavior of the <tt>WeakHashMap</tt> class depends in part upon
- * the actions of the garbage collector, so several familiar (though not
- * required) <tt>Map</tt> invariants do not hold for this class.  Because
- * the garbage collector may discard keys at any time, a
- * <tt>WeakHashMap</tt> may behave as though an unknown thread is silently
- * removing entries.  In particular, even if you synchronize on a
- * <tt>WeakHashMap</tt> instance and invoke none of its mutator methods, it
- * is possible for the <tt>size</tt> method to return smaller values over
- * time, for the <tt>isEmpty</tt> method to return <tt>false</tt> and
- * then <tt>true</tt>, for the <tt>containsKey</tt> method to return
- * <tt>true</tt> and later <tt>false</tt> for a given key, for the
- * <tt>get</tt> method to return a value for a given key but later return
- * <tt>null</tt>, for the <tt>put</tt> method to return
- * <tt>null</tt> and the <tt>remove</tt> method to return
- * <tt>false</tt> for a key that previously appeared to be in the map, and
- * for successive examinations of the key set, the value set, and the entry set
- * to yield successively smaller numbers of elements.
+ * <p>
+ * The behavior of the <tt>WeakHashMap</tt> class depends in part upon the actions of the garbage
+ * collector, so several familiar (though not required) <tt>Map</tt> invariants do not hold for this
+ * class. Because the garbage collector may discard keys at any time, a <tt>WeakHashMap</tt> may
+ * behave as though an unknown thread is silently removing entries. In particular, even if you
+ * synchronize on a <tt>WeakHashMap</tt> instance and invoke none of its mutator methods, it is
+ * possible for the <tt>size</tt> method to return smaller values over time, for the
+ * <tt>isEmpty</tt> method to return <tt>false</tt> and then <tt>true</tt>, for the
+ * <tt>containsKey</tt> method to return <tt>true</tt> and later <tt>false</tt> for a given key, for
+ * the <tt>get</tt> method to return a value for a given key but later return <tt>null</tt>, for the
+ * <tt>put</tt> method to return <tt>null</tt> and the <tt>remove</tt> method to return
+ * <tt>false</tt> for a key that previously appeared to be in the map, and for successive
+ * examinations of the key set, the value set, and the entry set to yield successively smaller
+ * numbers of elements.
  *
- * <p> Each key object in a <tt>WeakHashMap</tt> is stored indirectly as
- * the referent of a weak reference.  Therefore a key will automatically be
- * removed only after the weak references to it, both inside and outside of the
- * map, have been cleared by the garbage collector.
+ * <p>
+ * Each key object in a <tt>WeakHashMap</tt> is stored indirectly as the referent of a weak
+ * reference. Therefore a key will automatically be removed only after the weak references to it,
+ * both inside and outside of the map, have been cleared by the garbage collector.
  *
- * <p> <strong>Implementation note:</strong> The value objects in a
- * <tt>WeakHashMap</tt> are held by ordinary strong references.  Thus care
- * should be taken to ensure that value objects do not strongly refer to their
- * own keys, either directly or indirectly, since that will prevent the keys
- * from being discarded.  Note that a value object may refer indirectly to its
- * key via the <tt>WeakHashMap</tt> itself; that is, a value object may
- * strongly refer to some other key object whose associated value object, in
- * turn, strongly refers to the key of the first value object.  One way
- * to deal with this is to wrap values themselves within
- * <tt>WeakReferences</tt> before
- * inserting, as in: <tt>m.put(key, new WeakReference(value))</tt>,
- * and then unwrapping upon each <tt>get</tt>.
+ * <p>
+ * <strong>Implementation note:</strong> The value objects in a <tt>WeakHashMap</tt> are held by
+ * ordinary strong references. Thus care should be taken to ensure that value objects do not
+ * strongly refer to their own keys, either directly or indirectly, since that will prevent the keys
+ * from being discarded. Note that a value object may refer indirectly to its key via the
+ * <tt>WeakHashMap</tt> itself; that is, a value object may strongly refer to some other key object
+ * whose associated value object, in turn, strongly refers to the key of the first value object. One
+ * way to deal with this is to wrap values themselves within <tt>WeakReferences</tt> before
+ * inserting, as in: <tt>m.put(key, new WeakReference(value))</tt>, and then unwrapping upon each
+ * <tt>get</tt>.
  *
- * <p>The iterators returned by all of this class's "collection view methods"
- * are <i>fail-fast</i>: if the map is structurally modified at any time after
- * the iterator is created, in any way except through the iterator's own
- * <tt>remove</tt> or <tt>add</tt> methods, the iterator will throw a
- * <tt>ConcurrentModificationException</tt>.  Thus, in the face of concurrent
- * modification, the iterator fails quickly and cleanly, rather than risking
- * arbitrary, non-deterministic behavior at an undetermined time in the
- * future.
+ * <p>
+ * The iterators returned by all of this class's "collection view methods" are <i>fail-fast</i>: if
+ * the map is structurally modified at any time after the iterator is created, in any way except
+ * through the iterator's own <tt>remove</tt> or <tt>add</tt> methods, the iterator will throw a
+ * <tt>ConcurrentModificationException</tt>. Thus, in the face of concurrent modification, the
+ * iterator fails quickly and cleanly, rather than risking arbitrary, non-deterministic behavior at
+ * an undetermined time in the future.
  *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
- * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
- * throw <tt>ConcurrentModificationException</tt> on a best-effort basis.
- * Therefore, it would be wrong to write a program that depended on this
- * exception for its correctness:  <i>the fail-fast behavior of iterators
- * should be used only to detect bugs.</i>
+ * <p>
+ * Note that the fail-fast behavior of an iterator cannot be guaranteed as it is, generally
+ * speaking, impossible to make any hard guarantees in the presence of unsynchronized concurrent
+ * modification. Fail-fast iterators throw <tt>ConcurrentModificationException</tt> on a best-effort
+ * basis. Therefore, it would be wrong to write a program that depended on this exception for its
+ * correctness: <i>the fail-fast behavior of iterators should be used only to detect bugs.</i>
  *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../guide/collections/index.html">
- * Java Collections Framework</a>.
+ * <p>
+ * This class is a member of the <a href="{@docRoot}/../guide/collections/index.html"> Java
+ * Collections Framework</a>.
  *
- * @version	1.30, 02/19/04
- * @author      Doug Lea
- * @author      Josh Bloch
- * @author	Mark Reinhold
- * @since	1.2
- * @see		java.util.HashMap
- * @see		java.lang.ref.WeakReference
+ * @version 1.30, 02/19/04
+ * @author Doug Lea
+ * @author Josh Bloch
+ * @author Mark Reinhold
+ * @since 1.2
+ * @see java.util.HashMap
+ * @see java.lang.ref.WeakReference
  */
-public class WeakIdentityHashMap<K,V> {
+public class WeakIdentityHashMap<K, V> {
 
-	/**
-	 * Defines an interface for "higher-order functions" which can applied to all
-	 * active values in the map.
-	 * 
-	 * @author Benjamin Wood
-	 *
-	 * @param <T>	the type of the argument to the apply method.
-	 */
-	public static interface ValueFunction<T> {
-		public void apply(T v);
-	}
-	
-	
-	/**
+    /**
+     * Defines an interface for "higher-order functions" which can applied to all active values in
+     * the map.
+     *
+     * @author Benjamin Wood
+     *
+     * @param <T>
+     *            the type of the argument to the apply method.
+     */
+    public static interface ValueFunction<T> {
+        public void apply(T v);
+    }
+
+    /**
      * The default initial capacity -- MUST be a power of two.
      */
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     /**
-     * The maximum capacity, used if a higher value is implicitly specified
-     * by either of the constructors with arguments.
-     * MUST be a power of two <= 1<<30.
+     * The maximum capacity, used if a higher value is implicitly specified by either of the
+     * constructors with arguments. MUST be a power of two <= 1<<30.
      */
     private static final int MAXIMUM_CAPACITY = 1 << 30;
 
@@ -212,78 +190,80 @@ public class WeakIdentityHashMap<K,V> {
     private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 
     /**
-     * The number of times this IdentityHashMap has been structurally modified
-     * Structural modifications are those that change the number of mappings in
-     * the IdentityHashMap or otherwise modify its internal structure (e.g.,
-     * rehash).  This field is used to make iterators on Collection-views of
-     * the IdentityHashMap fail-fast.  (See ConcurrentModificationException).
+     * The number of times this IdentityHashMap has been structurally modified Structural
+     * modifications are those that change the number of mappings in the IdentityHashMap or
+     * otherwise modify its internal structure (e.g., rehash). This field is used to make iterators
+     * on Collection-views of the IdentityHashMap fail-fast. (See ConcurrentModificationException).
      */
     private volatile int modCount;
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial
-     * capacity and the given load factor.
+     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial capacity and the given
+     * load factor.
      *
-     * @param  initialCapacity The initial capacity of the <tt>WeakHashMap</tt>
-     * @param  loadFactor      The load factor of the <tt>WeakHashMap</tt>
-     * @throws IllegalArgumentException  If the initial capacity is negative,
-     *         or if the load factor is nonpositive.
+     * @param initialCapacity
+     *                            The initial capacity of the <tt>WeakHashMap</tt>
+     * @param loadFactor
+     *                            The load factor of the <tt>WeakHashMap</tt>
+     * @throws IllegalArgumentException
+     *                                      If the initial capacity is negative, or if the load
+     *                                      factor is nonpositive.
      */
     public WeakIdentityHashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
-            throw new IllegalArgumentException("Illegal Initial Capacity: "+
-                                               initialCapacity);
+            throw new IllegalArgumentException("Illegal Initial Capacity: " + initialCapacity);
         if (initialCapacity > MAXIMUM_CAPACITY)
             initialCapacity = MAXIMUM_CAPACITY;
 
         if (loadFactor <= 0 || Float.isNaN(loadFactor))
-            throw new IllegalArgumentException("Illegal Load factor: "+
-                                               loadFactor);
+            throw new IllegalArgumentException("Illegal Load factor: " + loadFactor);
         int capacity = 1;
         while (capacity < initialCapacity)
             capacity <<= 1;
         table = new Entry[capacity];
         this.loadFactor = loadFactor;
-        threshold = (int)(capacity * loadFactor);
+        threshold = (int) (capacity * loadFactor);
     }
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial
-     * capacity and the default load factor, which is <tt>0.75</tt>.
+     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial capacity and the default
+     * load factor, which is <tt>0.75</tt>.
      *
-     * @param  initialCapacity The initial capacity of the <tt>WeakHashMap</tt>
-     * @throws IllegalArgumentException  If the initial capacity is negative.
+     * @param initialCapacity
+     *                            The initial capacity of the <tt>WeakHashMap</tt>
+     * @throws IllegalArgumentException
+     *                                      If the initial capacity is negative.
      */
     public WeakIdentityHashMap(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the default initial
-     * capacity (16) and the default load factor (0.75).
+     * Constructs a new, empty <tt>WeakHashMap</tt> with the default initial capacity (16) and the
+     * default load factor (0.75).
      */
     public WeakIdentityHashMap() {
         this.loadFactor = DEFAULT_LOAD_FACTOR;
         threshold = (DEFAULT_INITIAL_CAPACITY);
         table = new Entry[DEFAULT_INITIAL_CAPACITY];
     }
-    
-	// SB: Added this from Vindicator
+
+    // SB: Added this from Vindicator
     public WeakIdentityHashMap(int initialCapacity, WeakIdentityHashMap mapToCopy) {
-    	this(initialCapacity, DEFAULT_LOAD_FACTOR);
-    	//Copy non-null entries from mapToCopy to new map
-    	Entry[] src = mapToCopy.getTable();
-    	for (int j = 0; j < src.length; ++j) {
-            Entry<K,V> e = src[j];
+        this(initialCapacity, DEFAULT_LOAD_FACTOR);
+        // Copy non-null entries from mapToCopy to new map
+        Entry[] src = mapToCopy.getTable();
+        for (int j = 0; j < src.length; ++j) {
+            Entry<K, V> e = src[j];
             src[j] = null;
             while (e != null) {
-                Entry<K,V> next = e.next;
+                Entry<K, V> next = e.next;
                 Object key = e.get();
                 if (key == null) {
-                    e.next = null;  // Help GC
-                    e.value = null; //  "   "
+                    e.next = null; // Help GC
+                    e.value = null; // " "
                 } else {
-                	this.put(e.getKey(), e.getValue());
+                    this.put(e.getKey(), e.getValue());
                 }
                 e = next;
             }
@@ -312,8 +292,8 @@ public class WeakIdentityHashMap<K,V> {
     }
 
     /**
-     * Check for equality of non-null reference x and possibly-null y.  By
-     * default uses Object.equals.
+     * Check for equality of non-null reference x and possibly-null y. By default uses
+     * Object.equals.
      */
     static boolean eq(Object x, Object y) {
         return x == y;
@@ -323,30 +303,30 @@ public class WeakIdentityHashMap<K,V> {
      * Return index for hash code h.
      */
     static int indexFor(int h, int length) {
-        return h & (length-1);
+        return h & (length - 1);
     }
 
     /**
      * Expunge stale entries from the table.
      */
     private void expungeStaleEntries() {
-    	Entry<K,V> e;
-        while ( (e = (Entry<K,V>) queue.poll()) != null) {
+        Entry<K, V> e;
+        while ((e = (Entry<K, V>) queue.poll()) != null) {
             int h = e.hash;
             int i = indexFor(h, table.length);
 
-            Entry<K,V> prev = table[i];
-            Entry<K,V> p = prev;
+            Entry<K, V> prev = table[i];
+            Entry<K, V> p = prev;
             while (p != null) {
-                Entry<K,V> next = p.next;
+                Entry<K, V> next = p.next;
                 if (p == e) {
                     if (prev == e)
                         table[i] = next;
                     else
                         prev.next = next;
-                    e.next = null;  // Help GC
+                    e.next = null; // Help GC
                     expunged(e.value);
-                    e.value = null; //  "   "
+                    e.value = null; // " "
                     size--;
                     break;
                 }
@@ -355,11 +335,12 @@ public class WeakIdentityHashMap<K,V> {
             }
         }
     }
-    
+
     /**
      * Notify that a key was expunged.
      */
-    protected void expunged(V v) {   }
+    protected void expunged(V v) {
+    }
 
     /**
      * Return the table after first expunging stale entries
@@ -370,10 +351,9 @@ public class WeakIdentityHashMap<K,V> {
     }
 
     /**
-     * Returns the number of key-value mappings in this map.
-     * This result is a snapshot, and may not reflect unprocessed
-     * entries that will be removed before next attempted access
-     * because they are no longer referenced.
+     * Returns the number of key-value mappings in this map. This result is a snapshot, and may not
+     * reflect unprocessed entries that will be removed before next attempted access because they
+     * are no longer referenced.
      */
     public int size() {
         if (size == 0)
@@ -381,25 +361,24 @@ public class WeakIdentityHashMap<K,V> {
         expungeStaleEntries();
         return size;
     }
-    
+
     public int tableSize() {
-    	if (table == null) {
-    		return 0;
-    	}
-    	return table.length;
+        if (table == null) {
+            return 0;
+        }
+        return table.length;
     }
-    
+
     public float loadFactorSize() {
-    	if (loadFactor < 0) {
-    		return 0;
-    	}
-    	return loadFactor;
+        if (loadFactor < 0) {
+            return 0;
+        }
+        return loadFactor;
     }
 
     /**
-     * Returns <tt>true</tt> if this map contains no key-value mappings.
-     * This result is a snapshot, and may not reflect unprocessed
-     * entries that will be removed before next attempted access
+     * Returns <tt>true</tt> if this map contains no key-value mappings. This result is a snapshot,
+     * and may not reflect unprocessed entries that will be removed before next attempted access
      * because they are no longer referenced.
      */
     public boolean isEmpty() {
@@ -407,17 +386,16 @@ public class WeakIdentityHashMap<K,V> {
     }
 
     /**
-     * Returns the value to which the specified key is mapped in this weak
-     * hash map, or <tt>null</tt> if the map contains no mapping for
-     * this key.  A return value of <tt>null</tt> does not <i>necessarily</i>
-     * indicate that the map contains no mapping for the key; it is also
-     * possible that the map explicitly maps the key to <tt>null</tt>. The
-     * <tt>containsKey</tt> method may be used to distinguish these two
-     * cases.
+     * Returns the value to which the specified key is mapped in this weak hash map, or
+     * <tt>null</tt> if the map contains no mapping for this key. A return value of <tt>null</tt>
+     * does not <i>necessarily</i> indicate that the map contains no mapping for the key; it is also
+     * possible that the map explicitly maps the key to <tt>null</tt>. The <tt>containsKey</tt>
+     * method may be used to distinguish these two cases.
      *
-     * @param   key the key whose associated value is to be returned.
-     * @return  the value to which this map maps the specified key, or
-     *          <tt>null</tt> if the map contains no mapping for this key.
+     * @param key
+     *                the key whose associated value is to be returned.
+     * @return the value to which this map maps the specified key, or <tt>null</tt> if the map
+     *         contains no mapping for this key.
      * @see #put(Object, Object)
      */
     public V get(Object key) {
@@ -425,7 +403,7 @@ public class WeakIdentityHashMap<K,V> {
         int h = System.identityHashCode(k);
         Entry[] tab = getTable();
         int index = indexFor(h, tab.length);
-        Entry<K,V> e = tab[index];
+        Entry<K, V> e = tab[index];
         while (e != null) {
             if (e.hash == h && eq(k, e.get()))
                 return e.value;
@@ -435,43 +413,42 @@ public class WeakIdentityHashMap<K,V> {
     }
 
     /**
-     * Returns <tt>true</tt> if this map contains a mapping for the
-     * specified key.
+     * Returns <tt>true</tt> if this map contains a mapping for the specified key.
      *
-     * @param   key   The key whose presence in this map is to be tested
-     * @return  <tt>true</tt> if there is a mapping for <tt>key</tt>;
-     *          <tt>false</tt> otherwise
+     * @param key
+     *                The key whose presence in this map is to be tested
+     * @return <tt>true</tt> if there is a mapping for <tt>key</tt>; <tt>false</tt> otherwise
      */
     public boolean containsKey(Object key) {
         return getEntry(key) != null;
     }
 
     /**
-     * Returns the entry associated with the specified key in the IdentityHashMap.
-     * Returns null if the IdentityHashMap contains no mapping for this key.
+     * Returns the entry associated with the specified key in the IdentityHashMap. Returns null if
+     * the IdentityHashMap contains no mapping for this key.
      */
-    Entry<K,V> getEntry(Object key) {
+    Entry<K, V> getEntry(Object key) {
         Object k = maskNull(key);
         int h = System.identityHashCode(k);
         Entry[] tab = getTable();
         int index = indexFor(h, tab.length);
-        Entry<K,V> e = tab[index];
+        Entry<K, V> e = tab[index];
         while (e != null && !(e.hash == h && eq(k, e.get())))
             e = e.next;
         return e;
     }
 
     /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for this key, the old
-     * value is replaced.
+     * Associates the specified value with the specified key in this map. If the map previously
+     * contained a mapping for this key, the old value is replaced.
      *
-     * @param key key with which the specified value is to be associated.
-     * @param value value to be associated with the specified key.
-     * @return previous value associated with specified key, or <tt>null</tt>
-     *	       if there was no mapping for key.  A <tt>null</tt> return can
-     *	       also indicate that the IdentityHashMap previously associated
-     *	       <tt>null</tt> with the specified key.
+     * @param key
+     *                  key with which the specified value is to be associated.
+     * @param value
+     *                  value to be associated with the specified key.
+     * @return previous value associated with specified key, or <tt>null</tt> if there was no
+     *         mapping for key. A <tt>null</tt> return can also indicate that the IdentityHashMap
+     *         previously associated <tt>null</tt> with the specified key.
      */
     public V put(K key, V value) {
         K k = (K) maskNull(key);
@@ -479,10 +456,10 @@ public class WeakIdentityHashMap<K,V> {
         Entry[] tab = getTable();
         int i = indexFor(h, tab.length);
 
-        for (Entry<K,V> e = tab[i]; e != null; e = e.next) {
+        for (Entry<K, V> e = tab[i]; e != null; e = e.next) {
             if (h == e.hash && eq(k, e.get())) {
                 V oldValue = e.value;
-                if (value != oldValue){
+                if (value != oldValue) {
                     e.value = value;
                 }
                 return oldValue;
@@ -490,27 +467,25 @@ public class WeakIdentityHashMap<K,V> {
         }
 
         modCount++;
-        Entry<K,V> e = tab[i];
-        tab[i] = new Entry<K,V>(k, value, queue, h, e);
-        if (++size >= threshold){
+        Entry<K, V> e = tab[i];
+        tab[i] = new Entry<K, V>(k, value, queue, h, e);
+        if (++size >= threshold) {
             resize(tab.length * 2);
         }
         return null;
     }
 
     /**
-     * Rehashes the contents of this map into a new target with a
-     * larger capacity.  This method is called automatically when the
-     * number of keys in this map reaches its threshold.
+     * Rehashes the contents of this map into a new target with a larger capacity. This method is
+     * called automatically when the number of keys in this map reaches its threshold.
      *
-     * If current capacity is MAXIMUM_CAPACITY, this method does not
-     * resize the map, but sets threshold to Integer.MAX_VALUE.
-     * This has the effect of preventing future calls.
+     * If current capacity is MAXIMUM_CAPACITY, this method does not resize the map, but sets
+     * threshold to Integer.MAX_VALUE. This has the effect of preventing future calls.
      *
-     * @param newCapacity the new capacity, MUST be a power of two;
-     *        must be greater than current capacity unless current
-     *        capacity is MAXIMUM_CAPACITY (in which case value
-     *        is irrelevant).
+     * @param newCapacity
+     *                        the new capacity, MUST be a power of two; must be greater than current
+     *                        capacity unless current capacity is MAXIMUM_CAPACITY (in which case
+     *                        value is irrelevant).
      */
     void resize(int newCapacity) {
         Entry[] oldTable = getTable();
@@ -525,12 +500,11 @@ public class WeakIdentityHashMap<K,V> {
         table = newTable;
 
         /*
-         * If ignoring null elements and processing ref queue caused massive
-         * shrinkage, then restore old table.  This should be rare, but avoids
-         * unbounded expansion of garbage-filled tables.
+         * If ignoring null elements and processing ref queue caused massive shrinkage, then restore
+         * old table. This should be rare, but avoids unbounded expansion of garbage-filled tables.
          */
         if (size >= threshold / 2) {
-            threshold = (int)(newCapacity * loadFactor);
+            threshold = (int) (newCapacity * loadFactor);
         } else {
             expungeStaleEntries();
             transfer(newTable, oldTable);
@@ -541,14 +515,14 @@ public class WeakIdentityHashMap<K,V> {
     /** Transfer all entries from src to dest tables */
     private void transfer(Entry[] src, Entry[] dest) {
         for (int j = 0; j < src.length; ++j) {
-            Entry<K,V> e = src[j];
+            Entry<K, V> e = src[j];
             src[j] = null;
             while (e != null) {
-                Entry<K,V> next = e.next;
+                Entry<K, V> next = e.next;
                 Object key = e.get();
                 if (key == null) {
-                    e.next = null;  // Help GC
-                    e.value = null; //  "   "
+                    e.next = null; // Help GC
+                    e.value = null; // " "
                     size--;
                 } else {
                     int i = indexFor(e.hash, dest.length);
@@ -563,22 +537,22 @@ public class WeakIdentityHashMap<K,V> {
     /**
      * Removes the mapping for this key from this map if present.
      *
-     * @param key key whose mapping is to be removed from the map.
-     * @return previous value associated with specified key, or <tt>null</tt>
-     *	       if there was no mapping for key.  A <tt>null</tt> return can
-     *	       also indicate that the map previously associated <tt>null</tt>
-     *	       with the specified key.
+     * @param key
+     *                key whose mapping is to be removed from the map.
+     * @return previous value associated with specified key, or <tt>null</tt> if there was no
+     *         mapping for key. A <tt>null</tt> return can also indicate that the map previously
+     *         associated <tt>null</tt> with the specified key.
      */
     public V remove(Object key) {
         Object k = maskNull(key);
         int h = System.identityHashCode(k);
         Entry[] tab = getTable();
         int i = indexFor(h, tab.length);
-        Entry<K,V> prev = tab[i];
-        Entry<K,V> e = prev;
+        Entry<K, V> prev = tab[i];
+        Entry<K, V> e = prev;
 
         while (e != null) {
-            Entry<K,V> next = e.next;
+            Entry<K, V> next = e.next;
             if (h == e.hash && eq(k, e.get())) {
                 modCount++;
                 size--;
@@ -595,22 +569,20 @@ public class WeakIdentityHashMap<K,V> {
         return null;
     }
 
-
-
     /** Special version of remove needed by Entry set */
-    Entry<K,V> removeMapping(Object o) {
+    Entry<K, V> removeMapping(Object o) {
         if (!(o instanceof Map.Entry))
             return null;
         Entry[] tab = getTable();
-        Map.Entry entry = (Map.Entry)o;
+        Map.Entry entry = (Map.Entry) o;
         Object k = maskNull(entry.getKey());
         int h = System.identityHashCode(k);
         int i = indexFor(h, tab.length);
-        Entry<K,V> prev = tab[i];
-        Entry<K,V> e = prev;
+        Entry<K, V> prev = tab[i];
+        Entry<K, V> e = prev;
 
         while (e != null) {
-            Entry<K,V> next = e.next;
+            Entry<K, V> next = e.next;
             if (h == e.hash && e.equals(entry)) {
                 modCount++;
                 size--;
@@ -643,63 +615,59 @@ public class WeakIdentityHashMap<K,V> {
         size = 0;
 
         // Allocation of target may have caused GC, which may have caused
-        // additional entries to go stale.  Removing these entries from the
+        // additional entries to go stale. Removing these entries from the
         // reference queue will make them eligible for reclamation.
         while (queue.poll() != null)
             ;
-   }
+    }
 
     /**
-     * Returns <tt>true</tt> if this map maps one or more keys to the
-     * specified value.
+     * Returns <tt>true</tt> if this map maps one or more keys to the specified value.
      *
-     * @param value value whose presence in this map is to be tested.
-     * @return <tt>true</tt> if this map maps one or more keys to the
-     *         specified value.
+     * @param value
+     *                  value whose presence in this map is to be tested.
+     * @return <tt>true</tt> if this map maps one or more keys to the specified value.
      */
     public boolean containsValue(Object value) {
-	if (value==null)
+        if (value == null)
             return containsNullValue();
 
-	Entry[] tab = getTable();
-        for (int i = tab.length ; i-- > 0 ;)
-            for (Entry e = tab[i] ; e != null ; e = e.next)
+        Entry[] tab = getTable();
+        for (int i = tab.length; i-- > 0;)
+            for (Entry e = tab[i]; e != null; e = e.next)
                 if (value.equals(e.value))
                     return true;
-	return false;
+        return false;
     }
 
     /**
      * Special-case code for containsValue with null argument
      */
     private boolean containsNullValue() {
-	Entry[] tab = getTable();
-        for (int i = tab.length ; i-- > 0 ;)
-            for (Entry e = tab[i] ; e != null ; e = e.next)
-                if (e.value==null)
+        Entry[] tab = getTable();
+        for (int i = tab.length; i-- > 0;)
+            for (Entry e = tab[i]; e != null; e = e.next)
+                if (e.value == null)
                     return true;
-	return false;
+        return false;
     }
 
     /**
-     * The entries in this hash table extend WeakReference, using its main ref
-     * field as the key.
+     * The entries in this hash table extend WeakReference, using its main ref field as the key.
      */
-    private static class Entry<K,V> extends WeakReference<K> implements Map.Entry<K,V> {
+    private static class Entry<K, V> extends WeakReference<K> implements Map.Entry<K, V> {
         private V value;
         private final int hash;
-        private Entry<K,V> next;
+        private Entry<K, V> next;
 
         /**
          * Create new entry.
          */
-        Entry(K key, V value,
-	      ReferenceQueue<K> queue,
-              int hash, Entry<K,V> next) {
+        Entry(K key, V value, ReferenceQueue<K> queue, int hash, Entry<K, V> next) {
             super(key, queue);
             this.value = value;
-            this.hash  = hash;
-            this.next  = next;
+            this.hash = hash;
+            this.next = next;
         }
 
         public K getKey() {
@@ -711,16 +679,16 @@ public class WeakIdentityHashMap<K,V> {
         }
 
         public V setValue(V newValue) {
-	    V oldValue = value;
+            V oldValue = value;
             value = newValue;
             return oldValue;
         }
 
         @Override
-		public boolean equals(Object o) {
+        public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry e = (Map.Entry)o;
+            Map.Entry e = (Map.Entry) o;
             Object k1 = getKey();
             Object k2 = e.getKey();
             if (k1 == k2) {
@@ -733,58 +701,60 @@ public class WeakIdentityHashMap<K,V> {
         }
 
         @Override
-		public int hashCode() {
-        	return hash ^ (value==null ? 0 : System.identityHashCode(value));
+        public int hashCode() {
+            return hash ^ (value == null ? 0 : System.identityHashCode(value));
         }
 
         @Override
-		public String toString() {
+        public String toString() {
             return getKey() + "=" + getValue();
         }
     }
 
-	/**
-	 * Applies the ValueFunction to all values with non-null keys.
-	 * 
-	 * @param f	the ValueFunction
-	 */
-	public void applyToAllActiveValues(ValueFunction<V> f) {
-		for (Entry<K,V> entry : getTable()) {
-			for (Entry<K,V> e = entry; e != null; e = e.next) {
-				if (e.get() != null) {
-					f.apply(e.value);
-				}
-			}
-		}
-	}
+    /**
+     * Applies the ValueFunction to all values with non-null keys.
+     *
+     * @param f
+     *              the ValueFunction
+     */
+    public void applyToAllActiveValues(ValueFunction<V> f) {
+        for (Entry<K, V> entry : getTable()) {
+            for (Entry<K, V> e = entry; e != null; e = e.next) {
+                if (e.get() != null) {
+                    f.apply(e.value);
+                }
+            }
+        }
+    }
 
-	/**
-	 * Applies the ValueFunction to all values, regardless of key.
-	 * 
-	 * @param f	the ValueFunction
-	 */
-	public void applyToAllValues(ValueFunction<V> f) {
-		for (Entry<K,V> entry : table) {
-			for (Entry<K,V> e = entry; e != null; e = e.next) {
-				f.apply(e.value);
-			}
-		}
-	}
+    /**
+     * Applies the ValueFunction to all values, regardless of key.
+     *
+     * @param f
+     *              the ValueFunction
+     */
+    public void applyToAllValues(ValueFunction<V> f) {
+        for (Entry<K, V> entry : table) {
+            for (Entry<K, V> e = entry; e != null; e = e.next) {
+                f.apply(e.value);
+            }
+        }
+    }
 
-
-	/**
-	 * Applies the ValueFunction to all values with non-null keys.
-	 * 
-	 * @param f	the ValueFunction
-	 */
-	public void applyToAllActiveKeys(ValueFunction<K> f) {
-		for (Entry<K,V> entry : getTable()) {
-			for (Entry<K,V> e = entry; e != null; e = e.next) {
-				if (e.get() != null) {
-					f.apply(e.get());
-				}
-			}
-		}
-	}
+    /**
+     * Applies the ValueFunction to all values with non-null keys.
+     *
+     * @param f
+     *              the ValueFunction
+     */
+    public void applyToAllActiveKeys(ValueFunction<K> f) {
+        for (Entry<K, V> entry : getTable()) {
+            for (Entry<K, V> e = entry; e != null; e = e.next) {
+                if (e.get() != null) {
+                    f.apply(e.get());
+                }
+            }
+        }
+    }
 
 }

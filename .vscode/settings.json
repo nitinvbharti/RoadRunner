@@ -4,5 +4,5 @@
         "**/bower_components": true,
         "**/auto": true
     },
-    "java.dependency.packagePresentation": "flat"
+    "java.dependency.packagePresentation": "hierarchical"
 }

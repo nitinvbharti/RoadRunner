@@ -1,54 +1,53 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
- * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ * 
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ * 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
  ******************************************************************************/
 
 package tools.eraser;
 
+import acme.util.Assert;
+import acme.util.Util;
+import acme.util.Yikes;
+import acme.util.io.XMLWriter;
+import acme.util.option.CommandLine;
 import rr.annotations.Abbrev;
 import rr.error.ErrorMessage;
 import rr.error.ErrorMessages;
 import rr.event.AccessEvent;
+import rr.event.AccessEvent.Kind;
 import rr.event.AcquireEvent;
 import rr.event.ArrayAccessEvent;
 import rr.event.FieldAccessEvent;
 import rr.event.NewThreadEvent;
 import rr.event.ReleaseEvent;
 import rr.event.VolatileAccessEvent;
-import rr.event.AccessEvent.Kind;
 import rr.meta.ArrayAccessInfo;
 import rr.meta.FieldInfo;
 import rr.simple.LastTool;
@@ -56,20 +55,15 @@ import rr.state.ShadowThread;
 import rr.state.ShadowVar;
 import rr.tool.Tool;
 import tools.util.LockSet;
-import acme.util.Assert;
-import acme.util.Util;
-import acme.util.Yikes;
-import acme.util.io.XMLWriter;
-import acme.util.option.CommandLine;
 
 @Abbrev("LS")
 final public class LockSetTool extends Tool {
 
-	public final ErrorMessage<FieldInfo> fieldErrors = 
-		ErrorMessages.makeFieldErrorMessage("LockSet");
+	public final ErrorMessage<FieldInfo> fieldErrors = ErrorMessages
+			.makeFieldErrorMessage("LockSet");
 
-	public final ErrorMessage<ArrayAccessInfo> arrayErrors = 
-		ErrorMessages.makeArrayErrorMessage("LockSet");
+	public final ErrorMessage<ArrayAccessInfo> arrayErrors = ErrorMessages
+			.makeArrayErrorMessage("LockSet");
 
 	public LockSetTool(String name, Tool next, CommandLine commandLine) {
 		super(name, next, commandLine);
@@ -80,8 +74,14 @@ final public class LockSetTool extends Tool {
 		}
 	}
 
-	protected static LockSet ts_get_lset(ShadowThread td) { Assert.fail("bad"); return null;}
-	protected static void ts_set_lset(ShadowThread td, LockSet ls) { Assert.fail("bad");  }
+	protected static LockSet ts_get_lset(ShadowThread td) {
+		Assert.fail("bad");
+		return null;
+	}
+
+	protected static void ts_set_lset(ShadowThread td, LockSet ls) {
+		Assert.fail("bad");
+	}
 
 	public static LockSet getLockSetForThread(ShadowThread state) {
 		return ts_get_lset(state);
@@ -92,7 +92,7 @@ final public class LockSetTool extends Tool {
 	}
 
 	@Override
-	public void volatileAccess(VolatileAccessEvent fae) { 
+	public void volatileAccess(VolatileAccessEvent fae) {
 		super.volatileAccess(fae);
 	}
 
@@ -130,34 +130,30 @@ final public class LockSetTool extends Tool {
 	private void error(AccessEvent fae, ShadowVar g) {
 		ShadowThread currentThread = fae.getThread();
 		if (fae.getKind() != Kind.ARRAY) {
-			FieldInfo fd = ((FieldAccessEvent)fae).getInfo().getField();
+			FieldInfo fd = ((FieldAccessEvent) fae).getInfo().getField();
 
 			if (fieldErrors.stillLooking(fd)) {
-				fieldErrors.error(currentThread, 
-						fd, 
-						"Guard State",	g,
-						"Class", 		fd.getOwner(),
-						"Field", 		fd.getName(),
-						"Target", 		Util.objectToIdentityString(fae.getTarget()),
-						"Locks", 		ts_get_lset(currentThread),
-						"Stack Trace",	ShadowThread.stackDumpForErrorMessage(currentThread));
+				fieldErrors.error(currentThread, fd, "Guard State", g, "Class", fd.getOwner(),
+						"Field", fd.getName(), "Target",
+						Util.objectToIdentityString(fae.getTarget()), "Locks",
+						ts_get_lset(currentThread), "Stack Trace",
+						ShadowThread.stackDumpForErrorMessage(currentThread));
 			}
 
-			if (!fieldErrors.stillLooking(fd)) advance(fae);
+			if (!fieldErrors.stillLooking(fd))
+				advance(fae);
 		} else {
-			ArrayAccessInfo fd = ((ArrayAccessEvent)fae).getInfo();
+			ArrayAccessInfo fd = ((ArrayAccessEvent) fae).getInfo();
 
 			if (arrayErrors.stillLooking(fd)) {
-				arrayErrors.error(currentThread, 
-						fd, 
-						"Guard State", 					g, 
-						"Array", 						Util.objectToIdentityString(fae.getTarget()), 
-						"Index", 						fae.getTarget(),
-						"Locks", 						ts_get_lset(currentThread),
-						"Stack Trace",					ShadowThread.stackDumpForErrorMessage(currentThread));
+				arrayErrors.error(currentThread, fd, "Guard State", g, "Array",
+						Util.objectToIdentityString(fae.getTarget()), "Index", fae.getTarget(),
+						"Locks", ts_get_lset(currentThread), "Stack Trace",
+						ShadowThread.stackDumpForErrorMessage(currentThread));
 			}
 
-			if (!arrayErrors.stillLooking(fd)) advance(fae);
+			if (!arrayErrors.stillLooking(fd))
+				advance(fae);
 		}
 	}
 
@@ -180,7 +176,7 @@ final public class LockSetTool extends Tool {
 		if (fae.getKind() != Kind.VOLATILE) {
 			return ts_get_lset(fae.getThread());
 		} else {
-			return super.makeShadowVar(fae);	
+			return super.makeShadowVar(fae);
 		}
 	}
 
@@ -190,7 +186,7 @@ final public class LockSetTool extends Tool {
 		int total = 0;
 		for (int i = 0; i < a.length; i++) {
 			total += i * a[i];
-		}		
+		}
 		xml.print("lscache", total);
 	}
 

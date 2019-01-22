@@ -11,6 +11,7 @@ benchmarks/lusearch/scratch/*
 benchmarks/pmd/scratch/*
 benchmarks/tomcat/scratch/*
 benchmarks/xalan/scratch/*
+benchmarks/dacapo-9.12-MR1-bach.jar
 
 test/*.class
 log

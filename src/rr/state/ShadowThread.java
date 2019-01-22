@@ -1,50 +1,53 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
- * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ *
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  ******************************************************************************/
 
 package rr.state;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Vector;
 
+import acme.util.Assert;
+import acme.util.AtomicFlag;
+import acme.util.StackDump;
+import acme.util.Util;
+import acme.util.count.Counter;
+import acme.util.count.HighWaterMark;
+import acme.util.decorations.Decoratable;
+import acme.util.decorations.Decoration;
+import acme.util.decorations.DecorationFactory;
+import acme.util.decorations.DefaultValue;
+import acme.util.identityhash.WeakIdentityHashMap;
+import acme.util.identityhash.WeakIdentityHashMap.ValueFunction;
 import rr.RRMain;
 import rr.event.AcquireEvent;
 import rr.event.ArrayAccessEvent;
@@ -67,52 +70,43 @@ import rr.meta.MethodInfo;
 import rr.state.update.AbstractArrayUpdater;
 import rr.state.update.Updaters;
 import rr.tool.RR;
-import rr.tool.RREventGenerator;
-import acme.util.Assert;
-import acme.util.AtomicFlag;
-import acme.util.StackDump;
-import acme.util.Util;
-import acme.util.count.Counter;
-import acme.util.count.HighWaterMark;
-import acme.util.decorations.Decoratable;
-import acme.util.decorations.Decoration;
-import acme.util.decorations.DecorationFactory;
-import acme.util.decorations.DefaultValue;
-import acme.util.identityhash.WeakIdentityHashMap;
-import acme.util.identityhash.WeakIdentityHashMap.ValueFunction;
-import acme.util.option.CommandLine;
-import acme.util.option.CommandLineOption;
 
 /**
- * The shadow state for each Thread object.  Tools should not access of modify
- * the contents of a ShadowThread object.  Any additional thread-specific data
- * needed by tools should be added to ShadowThread via a decoration.
+ * The shadow state for each Thread object. Tools should not access of modify the contents of a
+ * ShadowThread object. Any additional thread-specific data needed by tools should be added to
+ * ShadowThread via a decoration.
  */
 public class ShadowThread extends Decoratable implements ShadowVar {
 
-	private static final DecorationFactory<ShadowThread> decorations = new DecorationFactory<ShadowThread>(); 
+	private static final DecorationFactory<ShadowThread> decorations = new DecorationFactory<ShadowThread>();
 
 	/**
 	 * Create a new decoration for thread states.
-	 * @param <T>  Type of decoration
-	 * @param name Name of decoration
-	 * @param type Whether two different decorations can have the same name
-	 * @param defaultValueMaker  The default value for the decoration
+	 *
+	 * @param                   <T>
+	 *                              Type of decoration
+	 * @param name
+	 *                              Name of decoration
+	 * @param type
+	 *                              Whether two different decorations can have the same name
+	 * @param defaultValueMaker
+	 *                              The default value for the decoration
 	 */
-	public static <T> Decoration<ShadowThread, T> makeDecoration(String name, DecorationFactory.Type type, DefaultValue<ShadowThread, T> defaultValueMaker) {
+	public static <T> Decoration<ShadowThread, T> makeDecoration(String name,
+			DecorationFactory.Type type, DefaultValue<ShadowThread, T> defaultValueMaker) {
 		return decorations.make(name, type, defaultValueMaker);
 	}
 
 	// protected by ShadowThread.class
 	private static final ShadowThread tidMap[] = new ShadowThread[rr.tool.RR.maxTidOption.get()];
 
-	/** 
-	 * The RoadRunner thread id of the thread.  
+	/**
+	 * The RoadRunner thread id of the thread.
 	 */
 	protected final int tid;
 
-	/** 
-	 * The Java thread object for this ShadowThread object. 
+	/**
+	 * The Java thread object for this ShadowThread object.
 	 */
 	private final WeakReference<Thread> thread;
 
@@ -122,7 +116,8 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	protected final ShadowThread parent;
 
 	/**
-	 * True if the thread has stopped running. 
+	 * True if the thread has stopped running.
+	 *
 	 * @RRInternal
 	 */
 	protected volatile AtomicFlag isStopped = new AtomicFlag();
@@ -130,15 +125,15 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	/*
 	 * Put here to make efficient for re-entrant locks in RREventGenerator
 	 */
-	private final ShadowLock lockDataMap[] = new ShadowLock[100]; 
+	private final ShadowLock lockDataMap[] = new ShadowLock[100];
 	private int lockDataCount = 0;
 
 	/*
-	 * Put here so the instrumenter can avoid flow
-	 * analysis when figuring out when we exit a block.
+	 * Put here so the instrumenter can avoid flow analysis when figuring out when we exit a block.
 	 * Basically we keep the call stack here.
 	 */
-	private final MethodEvent blockStack[] = RR.noEnterOption.get() ? new MethodEvent[0] : new MethodEvent[8*1024]; 
+	private final MethodEvent blockStack[] = RR.noEnterOption.get() ? new MethodEvent[0]
+			: new MethodEvent[8 * 1024];
 	private int blockCount = 0;
 
 	/*** Creation ***/
@@ -154,45 +149,44 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	public boolean clearCaches = false;
 
 	/**
-	 * @RRInternal
-	 * Never store references to these event objects in tools, since they are reused. 
+	 * @RRInternal Never store references to these event objects in tools, since they are reused.
 	 */
-	private final FieldAccessEvent 			fieldAccessEvent 		= new FieldAccessEvent(this); 
-	private final VolatileAccessEvent 		volatileAccessEvent 	= new VolatileAccessEvent(this); 
-	private final ArrayAccessEvent 			arrayAccessEvent 		= new ArrayAccessEvent(this); 
-	private final AcquireEvent     			acquireEvent     		= new AcquireEvent(this);
-	private final ReleaseEvent     			releaseEvent     		= new ReleaseEvent(this);
-	private final StartEvent					startEvent				= new StartEvent(this);
-	private final WaitEvent 					waitEvent				= new WaitEvent(this);
-	private final JoinEvent					joinEvent				= new JoinEvent(this);
-	private final InterruptEvent				interruptEvent			= new InterruptEvent(this);
-	private final NotifyEvent				notifyEvent				= new NotifyEvent(this);
-	private final SleepEvent					sleepEvent				= new SleepEvent(this);
-	private final ClassInitializedEvent		classInitEvent			= new ClassInitializedEvent(this);
-	private final ClassAccessedEvent		classAccessedEvent			= new ClassAccessedEvent(this);
-	private final InterruptedEvent		interruptedEvent			= new InterruptedEvent(this);
+	private final FieldAccessEvent fieldAccessEvent = new FieldAccessEvent(this);
+	private final VolatileAccessEvent volatileAccessEvent = new VolatileAccessEvent(this);
+	private final ArrayAccessEvent arrayAccessEvent = new ArrayAccessEvent(this);
+	private final AcquireEvent acquireEvent = new AcquireEvent(this);
+	private final ReleaseEvent releaseEvent = new ReleaseEvent(this);
+	private final StartEvent startEvent = new StartEvent(this);
+	private final WaitEvent waitEvent = new WaitEvent(this);
+	private final JoinEvent joinEvent = new JoinEvent(this);
+	private final InterruptEvent interruptEvent = new InterruptEvent(this);
+	private final NotifyEvent notifyEvent = new NotifyEvent(this);
+	private final SleepEvent sleepEvent = new SleepEvent(this);
+	private final ClassInitializedEvent classInitEvent = new ClassInitializedEvent(this);
+	private final ClassAccessedEvent classAccessedEvent = new ClassAccessedEvent(this);
+	private final InterruptedEvent interruptedEvent = new InterruptedEvent(this);
 
 	/**
 	 * @RRInternal
 	 */
 	public int invokeId = InvokeInfo.NULL_ID;
 
-
 	// require ShadowThread.class
 	private static synchronized int allocTid(ShadowThread newThread) {
 		for (int i = 0; i < tidMap.length; i++) {
 			if (tidMap[i] == null) {
 				tidMap[i] = newThread;
-				maxCounter.set(i+1);
+				maxCounter.set(i + 1);
 				return i;
 			}
 		}
-		Assert.panic("Out of Tids.  Set -maxTid to be bigger than " + rr.tool.RR.maxTidOption.get());
+		Assert.panic(
+				"Out of Tids.  Set -maxTid to be bigger than " + rr.tool.RR.maxTidOption.get());
 		return -1;
 	}
 
 	/**
-	 * Create a new ShadowThread for the thread, given the parent thread. 
+	 * Create a new ShadowThread for the thread, given the parent thread.
 	 */
 	protected ShadowThread(Thread thread, ShadowThread parent) {
 		Assert.assertTrue(thread != null, "Null Thread!");
@@ -225,10 +219,9 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		return name + "[tid = " + getTid() + "]";
 	}
 
-
 	/**
-	 * Get the ShadowLock for an object being used as a lock, or null if
-	 * that object is not locked by this thread.
+	 * Get the ShadowLock for an object being used as a lock, or null if that object is not locked
+	 * by this thread.
 	 */
 	protected final ShadowLock get(Object lock) {
 		for (int i = lockDataCount - 1; i >= 0; i--) {
@@ -241,7 +234,7 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	}
 
 	/**
-	 * Called when a lock is acquired.  Return null if already held.
+	 * Called when a lock is acquired. Return null if already held.
 	 */
 	public final ShadowLock acquire(Object lock) {
 		ShadowLock ld = get(lock);
@@ -257,7 +250,7 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	}
 
 	/**
-	 * Called when a lock is released.  Return null if still held.
+	 * Called when a lock is released. Return null if still held.
 	 */
 	public final ShadowLock release(Object lock) {
 		ShadowLock ld = get(lock);
@@ -269,9 +262,8 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		}
 	}
 
-
 	/**
-	 * return the ShadowLocks for all held locks.  Only call from within the corresponding thread.
+	 * return the ShadowLocks for all held locks. Only call from within the corresponding thread.
 	 */
 	public final Collection<ShadowLock> getLocksHeld() {
 		Assert.assertTrue(Thread.currentThread() == this.getThread());
@@ -282,7 +274,7 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		}
 		return locks;
 	}
-	
+
 	// SB: Added from WDC implementation
 	public final ShadowLock getInnermostLock() {
 		if (lockDataCount == 0) {
@@ -299,9 +291,9 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	public final ShadowLock getHeldLock(int index) {
 		return lockDataMap[index];
 	}
-	
+
 	/*
-	 * @RRInternal.  Handles method stack. 
+	 * @RRInternal. Handles method stack.
 	 */
 	public final MethodEvent enter(final Object target, final MethodInfo methodData) {
 		blockStack[blockCount].setTarget(target);
@@ -311,26 +303,25 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	}
 
 	/*
-	 * @RRInternal.  Handles method stack. 
+	 * @RRInternal. Handles method stack.
 	 */
 	public final void exit() {
 		--blockCount;
 	}
 
 	/*
-	 * @RRInternal.  Handles method stack. 
+	 * @RRInternal. Handles method stack.
 	 */
 	public final int getBlockDepth() {
 		return blockCount;
 	}
 
 	/*
-	 * @RRInternal.  Handles method stack. 
+	 * @RRInternal. Handles method stack.
 	 */
 	public MethodEvent getBlock(int i) {
 		return blockStack[i];
 	}
-
 
 	/**
 	 * Return the number of threads being tracked.
@@ -342,11 +333,10 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	}
 
 	/**
-	 * Returns the max number of threads active at any
-	 * one time.
+	 * Returns the max number of threads active at any one time.
 	 */
 	public static int maxActiveThreads() {
-		return (int)maxCounter.getCount();
+		return (int) maxCounter.getCount();
 	}
 
 	/**
@@ -387,15 +377,16 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 
 	/////////////////
 
-
-	//	Map of Thread --> its ShadowThread for use in joining... and to bridge start/init
-	private static WeakIdentityHashMap<Thread,ShadowThread> threadToThreadDataMap = new WeakIdentityHashMap<Thread,ShadowThread>();
+	// Map of Thread --> its ShadowThread for use in joining... and to bridge start/init
+	private static WeakIdentityHashMap<Thread, ShadowThread> threadToThreadDataMap = new WeakIdentityHashMap<Thread, ShadowThread>();
 
 	/**
-	 * Create a new ShadowThread for the thread, given the parent thread. 
+	 * Create a new ShadowThread for the thread, given the parent thread.
 	 */
 	public static ShadowThread make(Thread thread, ShadowThread parent) {
-		final ShadowThread td = RR.noEventReuseOption.get() ? new ThreadStateNoEventReuse(thread, parent) : new ShadowThread(thread, parent); 
+		final ShadowThread td = RR.noEventReuseOption.get()
+				? new ThreadStateNoEventReuse(thread, parent)
+				: new ShadowThread(thread, parent);
 		synchronized (ShadowThread.class) {
 			threadToThreadDataMap.put(thread, td);
 		}
@@ -404,11 +395,9 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		return td;
 	}
 
-	private static ThreadLocal<ShadowThread> shadowThread = 
-			new ThreadLocal<ShadowThread>() {
+	private static ThreadLocal<ShadowThread> shadowThread = new ThreadLocal<ShadowThread>() {
 		@Override
-		protected  
-		ShadowThread initialValue() {
+		protected ShadowThread initialValue() {
 			synchronized (ShadowThread.class) {
 				Thread thread = Thread.currentThread();
 				ShadowThread td = threadToThreadDataMap.get(thread);
@@ -423,34 +412,34 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	private static Counter tdCount = new Counter("ShadowThread", "getCurrentThread() calls");
 
 	/**
-	 * Get the ShadowThread for the currently running Thread. 
+	 * Get the ShadowThread for the currently running Thread.
 	 */
 	public static ShadowThread getCurrentShadowThread() {
-		if (RRMain.slowMode()) tdCount.inc();
+		if (RRMain.slowMode())
+			tdCount.inc();
 		ShadowThread td = shadowThread.get();
 		return td;
 	}
 
 	/**
-	 * Get the ShadowThread for the given Thread. 
+	 * Get the ShadowThread for the given Thread.
 	 */
 	public static synchronized ShadowThread getShadowThread(Thread t) {
 		return threadToThreadDataMap.get(t);
 	}
 
 	/**
-	 * Get the ShadowThread for the given tid.  tid must be valid. 
+	 * Get the ShadowThread for the given tid. tid must be valid.
 	 */
 	public static synchronized ShadowThread get(int tid) {
 		return tidMap[tid];
 	}
 
-
 	/**
-	 * Return a String representing the call stack for a thread in the target program. 
+	 * Return a String representing the call stack for a thread in the target program.
 	 */
 	public static String stackDumpForErrorMessage(ShadowThread currentThread) {
-		if (RR.stackOption.get()) {	
+		if (RR.stackOption.get()) {
 			return StackDump.stackDump(currentThread.getThread(), RR.toolCode);
 		} else {
 			return "Use -stacks to show stacks...";
@@ -470,12 +459,14 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 	}
 
 	static public void terminate(ShadowThread st) {
-		if (st == null) return;
+		if (st == null)
+			return;
 
 		synchronized (st) {
 			final AtomicFlag stopped = st.getIsStopped();
 
-			if (stopped.get()) return; // bail if already stopped or stopping...
+			if (stopped.get())
+				return; // bail if already stopped or stopping...
 
 			RR.getTool().stop(st);
 
@@ -483,7 +474,7 @@ public class ShadowThread extends Decoratable implements ShadowVar {
 		}
 
 		synchronized (ShadowThread.class) {
-			Util.log("Terminating thread: " + st); 
+			Util.log("Terminating thread: " + st);
 			if (!RR.noTidGCOption.get() && tidMap[st.tid] == st) {
 				tidMap[st.tid] = null;
 			}

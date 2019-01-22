@@ -140,7 +140,6 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 		VectorClock cv = new VectorClock(td.getTid() + 1);
 		ts_set_cv_hb(td, cv);
 		super.create(e);
-
 	}
 
 	/*
@@ -194,14 +193,12 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 			}
 		}
 		super.volatileAccess(fae);
-
 	}
 
 	// FIXME: syncrhonize-me because we have destructive races on clock-vectors, and
 	// we have no "right-mover" argument
 	@Override
 	public void access(AccessEvent fae) {
-
 		ShadowVar g = fae.getOriginalShadow();
 		final ShadowThread currentThread = fae.getThread();
 
@@ -214,7 +211,6 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 			// Util.log("t=" + cv);
 			final int tid = currentThread.getTid();
 			if (isWrite) {
-
 				// check after prev read
 				passAlong |= checkAfter(p.rd, "read", currentThread, "write", fae, true, p);
 				// check after prev write
@@ -222,9 +218,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 				synchronized (p.wr) {
 					p.wr.set(tid, cv.get(tid));
 				}
-
 			} else {
-
 				// check after prev write
 				passAlong |= checkAfter(p.wr, "write", currentThread, "read", fae, true, p);
 				synchronized (p.rd) {
@@ -244,7 +238,6 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 
 	private boolean checkAfter(VectorClock prev, String prevOp, ShadowThread currentThread,
 			String curOp, AccessEvent fad, boolean isWrite, ShadowVar p) {
-
 		VectorClock cv = get(currentThread);
 		if (prev.anyGt(cv)) {
 			int start = 0;
@@ -290,7 +283,6 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 
 	@Override
 	public void preStart(final StartEvent se) {
-
 		final ShadowThread td = se.getThread();
 		final ShadowThread forked = se.getNewThread();
 
