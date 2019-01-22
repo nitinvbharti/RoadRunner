@@ -10,11 +10,13 @@ Read the comments at the beginning of the RRMain class.
 
 Note that RoadRunner current supports only till Java 1.8.
 
-+ rrrun -tool=FT2 test.Test -benchmark=10 -warmup=3
++ `avrora`
+    + `rrrun -tool=FT2 test.Test -benchmark=10 -warmup=3`
 
-+ ./TEST -tool=FT2 -array=FINE -field=FINE -noTidGC -availableProcessors=4 -benchmark=1 -warmup=0 RRBench
+    + `./TEST -tool=FT2 -array=FINE -field=FINE -noTidGC -availableProcessors=4 -benchmark=1 -warmup=0 RRBench`
 
-+ rrrun -classpath=original.jar -tool=FT2 -noTidGC -noxml Main -t 4 -s small (for avrora)
+    + `rrrun -classpath=original.jar -tool=FT2 -array=FINE -field=FINE -noTidGC -noxml -availableProcessors=4 -benchmark=1 -warmup=0 Main -t 4 -s small`
+
 
 ## Benchmarks
 

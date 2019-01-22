@@ -1,45 +1,46 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
- * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ *
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  ******************************************************************************/
 
 package tools.hb;
 
 import java.util.Vector;
 
+import acme.util.Assert;
+import acme.util.Util;
+import acme.util.decorations.Decoration;
+import acme.util.decorations.DecorationFactory;
+import acme.util.decorations.DefaultValue;
+import acme.util.decorations.NullDefault;
+import acme.util.option.CommandLine;
 import rr.annotations.Abbrev;
 import rr.barrier.BarrierEvent;
 import rr.barrier.BarrierListener;
@@ -47,6 +48,7 @@ import rr.barrier.BarrierMonitor;
 import rr.error.ErrorMessage;
 import rr.error.ErrorMessages;
 import rr.event.AccessEvent;
+import rr.event.AccessEvent.Kind;
 import rr.event.AcquireEvent;
 import rr.event.ArrayAccessEvent;
 import rr.event.FieldAccessEvent;
@@ -59,7 +61,6 @@ import rr.event.ReleaseEvent;
 import rr.event.StartEvent;
 import rr.event.VolatileAccessEvent;
 import rr.event.WaitEvent;
-import rr.event.AccessEvent.Kind;
 import rr.meta.ArrayAccessInfo;
 import rr.meta.FieldInfo;
 import rr.state.ShadowLock;
@@ -68,38 +69,32 @@ import rr.state.ShadowVar;
 import rr.tool.Tool;
 import tools.util.VectorClock;
 import tools.util.VectorClockPair;
-import acme.util.Assert;
-import acme.util.Util;
-import acme.util.decorations.Decoration;
-import acme.util.decorations.DecorationFactory;
-import acme.util.decorations.DefaultValue;
-import acme.util.decorations.NullDefault;
-import acme.util.option.CommandLine;
 
 /**
  * A simple VC-based HappensBefore Race Detector.
  *
- * This does not handle many special cases related to static initializers, etc.
- * and may report spurious warnings as a result.  The FastTrack implementations
- * do handles those items.
+ * This does not handle many special cases related to static initializers, etc. and may report
+ * spurious warnings as a result. The FastTrack implementations do handle those items.
  */
 
 @Abbrev("HB")
 public final class HappensBeforeTool extends Tool implements BarrierListener<HBBarrierState> {
 
 	/* Reporters for field/array errors */
-	public final ErrorMessage<FieldInfo> errors = ErrorMessages.makeFieldErrorMessage("HappensBefore");
-	public final ErrorMessage<ArrayAccessInfo> arrayErrors = ErrorMessages.makeArrayErrorMessage("HappensBefore");
+	public final ErrorMessage<FieldInfo> errors = ErrorMessages
+			.makeFieldErrorMessage("HappensBefore");
+	public final ErrorMessage<ArrayAccessInfo> arrayErrors = ErrorMessages
+			.makeArrayErrorMessage("HappensBefore");
 
 	public HappensBeforeTool(String name, Tool next, CommandLine commandLine) {
-		super(name, next, commandLine); 
+		super(name, next, commandLine);
 
-		/* 
-		 * Create a barrier monitor that will notify this tool when barrier ops happen.
-		 * The get(k) method returns the initial state to associate with each barrier
-		 * when the barrier is created.
+		/*
+		 * Create a barrier monitor that will notify this tool when barrier ops happen. The get(k)
+		 * method returns the initial state to associate with each barrier when the barrier is
+		 * created.
 		 */
-		new BarrierMonitor<HBBarrierState>(this, new DefaultValue<Object,HBBarrierState>() {
+		new BarrierMonitor<HBBarrierState>(this, new DefaultValue<Object, HBBarrierState>() {
 			public HBBarrierState get(Object k) {
 				return new HBBarrierState(ShadowLock.get(k));
 			}
@@ -107,29 +102,37 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 
 	}
 
-	/* 
-	 * Special methods that tells the instrumentor to create a field in ShadowThread
-	 * named "hb" of type "VectorClock".  This is for performance only -- you could do the same
-	 * thing using a decoration on ThreadStates.
+	/*
+	 * Special methods that tells the instrumentor to create a field in ShadowThread named "hb" of
+	 * type "VectorClock". This is for performance only -- you could do the same thing using a
+	 * decoration on ThreadStates.
 	 */
-	static VectorClock ts_get_cv_hb(ShadowThread ts) { Assert.panic("Bad");	return null; }
-	static void ts_set_cv_hb(ShadowThread ts, VectorClock cv) { Assert.panic("Bad");  }
+	static VectorClock ts_get_cv_hb(ShadowThread ts) {
+		Assert.panic("Bad");
+		return null;
+	}
+
+	static void ts_set_cv_hb(ShadowThread ts, VectorClock cv) {
+		Assert.panic("Bad");
+	}
 
 	private VectorClock get(ShadowThread td) {
 		return ts_get_cv_hb(td);
 	}
 
 	/*
-	 * Attach a VectorClock to each object used as a lock. 
+	 * Attach a VectorClock to each object used as a lock.
 	 */
-	Decoration<ShadowLock,VectorClock> shadowLock = ShadowLock.decoratorFactory.make("HB:lock", DecorationFactory.Type.MULTIPLE,
-			new DefaultValue<ShadowLock,VectorClock>() { public VectorClock get(ShadowLock ld) { return new VectorClock(1); }});
+	Decoration<ShadowLock, VectorClock> shadowLock = ShadowLock.decoratorFactory.make("HB:lock",
+			DecorationFactory.Type.MULTIPLE, new DefaultValue<ShadowLock, VectorClock>() {
+				public VectorClock get(ShadowLock ld) {
+					return new VectorClock(1);
+				}
+			});
 
 	private VectorClock get(ShadowLock td) {
 		return shadowLock.get(td);
 	}
-
-
 
 	@Override
 	public void create(NewThreadEvent e) {
@@ -153,7 +156,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 		final ShadowLock shadowLock = ae.getLock();
 
 		tick(currentThread);
-		synchronized(shadowLock) {
+		synchronized (shadowLock) {
 			get(currentThread).max(get(shadowLock));
 		}
 		super.acquire(ae);
@@ -163,7 +166,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	public void release(ReleaseEvent re) {
 		final ShadowThread currentThread = re.getThread();
 		final ShadowLock shadowLock = re.getLock();
-		synchronized(shadowLock) {
+		synchronized (shadowLock) {
 			get(shadowLock).copy(get(currentThread));
 		}
 		tick(currentThread);
@@ -178,14 +181,14 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 		if (g instanceof VectorClockPair) {
 			final ShadowVar orig = fae.getOriginalShadow();
 			final ShadowThread td = fae.getThread();
-			VectorClockPair p = (VectorClockPair)g;
+			VectorClockPair p = (VectorClockPair) g;
 
 			final VectorClock cv = ts_get_cv_hb(td);
 			if (fae.isWrite()) {
 				p.rd.max(get(currentThread));
-				tick(td); 			
+				tick(td);
 			} else {
-				synchronized(p.rd) {
+				synchronized (p.rd) {
 					get(currentThread).max(p.rd);
 				}
 			}
@@ -202,14 +205,13 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 		ShadowVar g = fae.getOriginalShadow();
 		final ShadowThread currentThread = fae.getThread();
 
-
 		if (g instanceof VectorClockPair) {
 			boolean passAlong = false;
-			VectorClockPair p = (VectorClockPair)g;
+			VectorClockPair p = (VectorClockPair) g;
 			boolean isWrite = fae.isWrite();
 			VectorClock cv = get(currentThread);
-//			Util.log("p=" + p);
-//			Util.log("t=" + cv);
+			// Util.log("p=" + p);
+			// Util.log("t=" + cv);
 			final int tid = currentThread.getTid();
 			if (isWrite) {
 
@@ -217,68 +219,60 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 				passAlong |= checkAfter(p.rd, "read", currentThread, "write", fae, true, p);
 				// check after prev write
 				passAlong |= checkAfter(p.wr, "write", currentThread, "write", fae, true, p);
-				synchronized(p.wr) { 	
+				synchronized (p.wr) {
 					p.wr.set(tid, cv.get(tid));
 				}
- 
+
 			} else {
 
 				// check after prev write
 				passAlong |= checkAfter(p.wr, "write", currentThread, "read", fae, true, p);
-				synchronized(p.rd) { 	
+				synchronized (p.rd) {
 					p.rd.set(tid, cv.get(tid));
 				}
-//				p.rd.max(cv);
+				// p.rd.max(cv);
 			}
 			if (passAlong) {
 				advance(fae);
 			}
-//			Util.log("p=" + p);
-//			Util.log("t=" + cv);
+			// Util.log("p=" + p);
+			// Util.log("t=" + cv);
 		} else {
 			super.access(fae);
-		} 
+		}
 	}
 
-
-	private boolean checkAfter(VectorClock prev, String prevOp, ShadowThread currentThread, String curOp, 
-			AccessEvent fad, boolean isWrite, ShadowVar p) {
+	private boolean checkAfter(VectorClock prev, String prevOp, ShadowThread currentThread,
+			String curOp, AccessEvent fad, boolean isWrite, ShadowVar p) {
 
 		VectorClock cv = get(currentThread);
-		if(prev.anyGt(cv)) { 
-			int start=0; 
-			while(true) {
-				start=prev.nextGt(cv, start);
-				if (start==-1) {
+		if (prev.anyGt(cv)) {
+			int start = 0;
+			while (true) {
+				start = prev.nextGt(cv, start);
+				if (start == -1) {
 					break;
-				} 
+				}
 				Object target = fad.getTarget();
 				if (fad.getKind() == Kind.ARRAY) {
-					ArrayAccessEvent aae = (ArrayAccessEvent)fad;
+					ArrayAccessEvent aae = (ArrayAccessEvent) fad;
 					final ArrayAccessInfo arrayAccessInfo = aae.getInfo();
-					arrayErrors.error(currentThread, arrayAccessInfo,  
-							"Guard State", 	prev, 
-							"Array",		Util.objectToIdentityString(target) + "[" + aae.getIndex() +"]", 
-							"Locks",		currentThread.getLocksHeld(), 
-							"Prev Op",		prevOp+"-by-thread-"+start,  
-							"Prev Op CV",	prev, 
-							"Cur Op", 		curOp,
-							"Cur Op CV", 	cv,
-							"Stack",		ShadowThread.stackDumpForErrorMessage(currentThread));
+					arrayErrors.error(currentThread, arrayAccessInfo, "Guard State", prev, "Array",
+							Util.objectToIdentityString(target) + "[" + aae.getIndex() + "]",
+							"Locks", currentThread.getLocksHeld(), "Prev Op",
+							prevOp + "-by-thread-" + start, "Prev Op CV", prev, "Cur Op", curOp,
+							"Cur Op CV", cv, "Stack",
+							ShadowThread.stackDumpForErrorMessage(currentThread));
 					start++;
 					return !arrayErrors.stillLooking(arrayAccessInfo);
 				} else {
-					FieldInfo fd = ((FieldAccessEvent)fad).getInfo().getField();
-					errors.error(currentThread, fd, 
-									"Guard State", 	prev, 
-									"Class",		target==null?fd.getOwner():target.getClass(), 
-									"Field",		Util.objectToIdentityString(target) + "." + fd, 
-									"Locks",		currentThread.getLocksHeld(), 
-									"Prev Op",		prevOp+"-by-thread-"+start,  
-									"Prev Op CV",	prev, 
-									"Cur Op", 		curOp,
-									"Cur Op CV", 	cv,
-									"Stack",		ShadowThread.stackDumpForErrorMessage(currentThread));
+					FieldInfo fd = ((FieldAccessEvent) fad).getInfo().getField();
+					errors.error(currentThread, fd, "Guard State", prev, "Class",
+							target == null ? fd.getOwner() : target.getClass(), "Field",
+							Util.objectToIdentityString(target) + "." + fd, "Locks",
+							currentThread.getLocksHeld(), "Prev Op", prevOp + "-by-thread-" + start,
+							"Prev Op CV", prev, "Cur Op", curOp, "Cur Op CV", cv, "Stack",
+							ShadowThread.stackDumpForErrorMessage(currentThread));
 					start++;
 					return !errors.stillLooking(fd);
 				}
@@ -288,7 +282,6 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 			return false;
 		}
 	}
-
 
 	@Override
 	public ShadowVar makeShadowVar(AccessEvent fae) {
@@ -312,7 +305,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	@Override
 	public void preNotify(NotifyEvent we) {
 		tick(we.getThread());
-		synchronized(we.getLock()) {
+		synchronized (we.getLock()) {
 			get(we.getLock()).max(get(we.getThread()));
 		}
 		tick(we.getThread());
@@ -322,7 +315,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	@Override
 	public void preWait(WaitEvent we) {
 		tick(we.getThread());
-		synchronized(we.getLock()) {
+		synchronized (we.getLock()) {
 			get(we.getLock()).max(get(we.getThread()));
 		}
 		tick(we.getThread());
@@ -330,9 +323,9 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	}
 
 	@Override
-	public void postWait(WaitEvent we) { 
+	public void postWait(WaitEvent we) {
 		tick(we.getThread());
-		synchronized(we.getLock()) {
+		synchronized (we.getLock()) {
 			get(we.getThread()).max(get(we.getLock()));
 		}
 		tick(we.getThread());
@@ -340,7 +333,7 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	}
 
 	@Override
-	public void postJoin(JoinEvent je) { 
+	public void postJoin(JoinEvent je) {
 		final ShadowThread currentThread = je.getThread();
 		final ShadowThread joinedThread = je.getJoiningThread();
 
@@ -350,8 +343,9 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 		super.postJoin(je);
 	}
 
-	private final Decoration<ShadowThread, VectorClock> cvForExit = 
-		ShadowThread.makeDecoration("HB:sbarrier", DecorationFactory.Type.MULTIPLE, new NullDefault<ShadowThread, VectorClock>());
+	private final Decoration<ShadowThread, VectorClock> cvForExit = ShadowThread.makeDecoration(
+			"HB:sbarrier", DecorationFactory.Type.MULTIPLE,
+			new NullDefault<ShadowThread, VectorClock>());
 
 	public void postDoBarrier(BarrierEvent<HBBarrierState> be) {
 		ShadowThread currentThread = be.getThread();
@@ -364,20 +358,22 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 	public void preDoBarrier(BarrierEvent<HBBarrierState> be) {
 		ShadowThread td = be.getThread();
 		VectorClock entering = be.getBarrier().entering;
-		entering.max(get(td));	
+		entering.max(get(td));
 		cvForExit.set(td, entering);
 	}
-	
 
 	@Override
 	public ShadowVar cloneState(ShadowVar shadowVar) {
 		return null;
 	}
-	
-	
-	protected static Decoration<ShadowThread,Vector<VectorClock>> interruptions = 
-		ShadowThread.makeDecoration("interruptions", DecorationFactory.Type.MULTIPLE,
-				new DefaultValue<ShadowThread, Vector<VectorClock>>() { public Vector<VectorClock> get(ShadowThread ld) { return new Vector<VectorClock>(); }} );
+
+	protected static Decoration<ShadowThread, Vector<VectorClock>> interruptions = ShadowThread
+			.makeDecoration("interruptions", DecorationFactory.Type.MULTIPLE,
+					new DefaultValue<ShadowThread, Vector<VectorClock>>() {
+						public Vector<VectorClock> get(ShadowThread ld) {
+							return new Vector<VectorClock>();
+						}
+					});
 
 	@Override
 	public synchronized void preInterrupt(InterruptEvent me) {
@@ -396,12 +392,10 @@ public final class HappensBeforeTool extends Tool implements BarrierListener<HBB
 
 		for (VectorClock cv : v) {
 			get(current).max(cv);
-		} 
-		
+		}
+
 		v.clear();
-		super.interrupted(e); 
+		super.interrupted(e);
 	}
-
-
 
 }

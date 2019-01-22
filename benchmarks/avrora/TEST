@@ -37,8 +37,7 @@
 
 TARGET="Main"
 # SB: Pass benchmark specific parameters here
-# PROGRAM_ARGS="-s small"
-PROGRAM_ARGS=""
+PROGRAM_ARGS="-s small"
 
 echo "PREP"
 cd scratch
