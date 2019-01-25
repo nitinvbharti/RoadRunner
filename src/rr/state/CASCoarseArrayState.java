@@ -1,9 +1,9 @@
 /******************************************************************************
 
 Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
+                    and Stephen Freund (Williams College)
 
-All rights reserved.  
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -42,14 +42,14 @@ import acme.util.Assert;
 import acme.util.Yikes;
 
 /*
- * This updater uses Unsafe compare and swap operations.  It assumes that volatile 
+ * This updater uses Unsafe compare and swap operations.  It assumes that volatile
  * semantics are enforced for cas and subsequent calls to getObjectVolatile on the
  * same memory location.
- * 
+ *
  * I believe this to be true on x86, but have not tested it thoroughly.
- *   
+ *
  * Use at your own risk.
- * 
+ *
  * @RRExperimental
  */
 public final class CASCoarseArrayState extends CASAbstractArrayState {
@@ -58,7 +58,7 @@ public final class CASCoarseArrayState extends CASAbstractArrayState {
 	protected final AbstractArrayState[] nextDimension;
 
     private static final long offset;
-    
+
     static {
     	long o = 0;
 		try {
@@ -88,14 +88,14 @@ public final class CASCoarseArrayState extends CASAbstractArrayState {
 	public AbstractArrayState getShadowForNextDim(ShadowThread td, Object element, int i) {
 		if (element != nextDimension[i].getArray()) {
 //			Yikes.yikes("Stale array entry for next dim");
-			nextDimension[i] = td.arrayStateFactory.get(element); 
-		} 
+			nextDimension[i] = td.arrayStateFactory.get(element);
+		}
 		return nextDimension[i];
 	}
 
 	@Override
 	public void setShadowForNextDim(int i, AbstractArrayState s) {
-		nextDimension[i] = s; 
+		nextDimension[i] = s;
 	}
 
 

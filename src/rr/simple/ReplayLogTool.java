@@ -1,39 +1,33 @@
 /******************************************************************************
-
-Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
-
-All rights reserved.  
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
- * Neither the names of the University of California, Santa Cruz
-      and Williams College nor the names of its contributors may be
-      used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ * 
+ * Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz) and Stephen Freund
+ * (Williams College)
+ * 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ * and the following disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * Neither the names of the University of California, Santa Cruz and Williams College nor the names
+ * of its contributors may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
  ******************************************************************************/
 
 package rr.simple;
@@ -45,6 +39,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 
+import acme.util.Assert;
+import acme.util.Util;
+import acme.util.decorations.DefaultValue;
+import acme.util.identityhash.WeakIdentityHashMap;
+import acme.util.option.CommandLine;
 import rr.annotations.Abbrev;
 import rr.barrier.BarrierEvent;
 import rr.barrier.BarrierListener;
@@ -80,22 +79,20 @@ import rr.replay.ReplayBarrier;
 import rr.state.ShadowThread;
 import rr.tool.RR;
 import rr.tool.Tool;
-import acme.util.Assert;
-import acme.util.Util;
-import acme.util.decorations.DefaultValue;
-import acme.util.identityhash.WeakIdentityHashMap;
-import acme.util.option.CommandLine;
 
 /**
- * Used to create a log to for trace replaying.  Not stable.
+ * Used to create a log to for trace replaying. Not stable.
  */
 
 @Abbrev("LOG")
-final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, BarrierListener<ReplayBarrier> {
+final public class ReplayLogTool extends Tool
+		implements MetaDataInfoVisitor, BarrierListener<ReplayBarrier> {
 
 	protected static int count = 0;
+
 	private class MonitoredInteger {
 		final int x = count++;
+
 		@Override
 		protected void finalize() {
 			try {
@@ -109,9 +106,9 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		}
 	}
 
-	protected IdentityHashMap<ShadowThread,Integer> threads = new IdentityHashMap<ShadowThread,Integer>();
-	protected WeakIdentityHashMap<Object,MonitoredInteger> objects = new WeakIdentityHashMap<Object,MonitoredInteger>();
-	protected HashMap<String,Integer> strings = new HashMap<String,Integer>();
+	protected IdentityHashMap<ShadowThread, Integer> threads = new IdentityHashMap<ShadowThread, Integer>();
+	protected WeakIdentityHashMap<Object, MonitoredInteger> objects = new WeakIdentityHashMap<Object, MonitoredInteger>();
+	protected HashMap<String, Integer> strings = new HashMap<String, Integer>();
 	protected DataOutputStream out;
 	protected int eventCount = 0;
 	protected boolean open = true;
@@ -124,10 +121,11 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	public void init() {
 		RR.nofastPathOption.set(true);
 		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("events.rrlog"), 8192 * 32));
+			out = new DataOutputStream(
+					new BufferedOutputStream(new FileOutputStream("events.rrlog"), 8192 * 32));
 			addMetaDataListener(this);
 
-			new BarrierMonitor<ReplayBarrier>(this, new DefaultValue<Object,ReplayBarrier>() {
+			new BarrierMonitor<ReplayBarrier>(this, new DefaultValue<Object, ReplayBarrier>() {
 				public ReplayBarrier get(Object k) {
 					ReplayBarrier fakeBarrier = new ReplayBarrier(object(k));
 					return fakeBarrier;
@@ -139,14 +137,13 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		}
 	}
 
-
 	@Override
-	public  void fini() {
+	public void fini() {
 		try {
 			synchronized (out) {
 				writeEventType(EventEnum.QUIT);
 				out.close();
-				open  = false;
+				open = false;
 			}
 			Util.logf("Generated %,d Events", this.eventCount);
 		} catch (IOException e) {
@@ -160,9 +157,8 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		eventCount++;
 	}
 
-
 	// requires out
-	private  int stringKey(String s) throws IOException {
+	private int stringKey(String s) throws IOException {
 		synchronized (strings) {
 			Integer x = strings.get(s);
 			if (x == null) {
@@ -175,34 +171,33 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		}
 	}
 
-	protected  int thread(ShadowThread s) {
-		synchronized(threads) {
+	protected int thread(ShadowThread s) {
+		synchronized (threads) {
 			Integer i = threads.get(s);
 			if (i == null) {
 				i = new Integer(threads.size());
-				threads.put(s,i);
+				threads.put(s, i);
 			}
 			return i;
 		}
 	}
 
 	protected int object(Object s) {
-		synchronized(objects) {
+		synchronized (objects) {
 			MonitoredInteger i = objects.get(s);
 			if (i == null) {
 				i = new MonitoredInteger();
-				objects.put(s,i);
+				objects.put(s, i);
 			}
 			return i.x;
 		}
 	}
 
-
 	@Override
 	public void create(NewThreadEvent e) {
 		ShadowThread td = e.getThread();
 		int thread = thread(td);
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.CREATE);
@@ -215,11 +210,10 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		super.create(e);
 	}
 
-
 	@Override
 	public void stop(ShadowThread td) {
 		int thread = thread(td);
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.STOP);
@@ -232,14 +226,13 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		super.stop(td);
 	}
 
-
 	@Override
 	public void access(AccessEvent fae) {
 		try {
 			int ordinal = fae.getKind().ordinal();
 			int thread = thread(fae.getThread());
 			int object = object(fae.getTarget());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(fae.getAccessInfo().getKey());
 					writeEventType(EventEnum.ACCESS);
@@ -248,7 +241,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 					out.writeInt(key);
 					out.writeInt(object);
 					if (fae.getKind() == AccessEvent.Kind.ARRAY) {
-						out.writeInt(((ArrayAccessEvent)fae).getIndex());
+						out.writeInt(((ArrayAccessEvent) fae).getIndex());
 					}
 				}
 			}
@@ -264,7 +257,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 			int ordinal = fae.getKind().ordinal();
 			int thread = thread(fae.getThread());
 			int object = object(fae.getTarget());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(fae.getAccessInfo().getKey());
 					writeEventType(EventEnum.ACCESS);
@@ -286,7 +279,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(ae.getThread());
 			int object = object(ae.getLock().getLock());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(ae.getInfo().getKey());
 					writeEventType(EventEnum.ACQUIRE);
@@ -306,7 +299,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(ae.getThread());
 			int object = object(ae.getLock().getLock());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(ae.getInfo().getKey());
 					writeEventType(EventEnum.RELEASE);
@@ -327,7 +320,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(me.getThread());
 			int object = object(me.getTarget());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(me.getInfo().getKey());
 					writeEventType(EventEnum.ENTER);
@@ -347,7 +340,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(me.getThread());
 			int object = object(me.getTarget());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(me.getInfo().getKey());
 					writeEventType(EventEnum.EXIT);
@@ -367,7 +360,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(je.getThread());
 			int thread2 = thread(je.getJoiningThread());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(je.getInfo().getKey());
 					writeEventType(EventEnum.POSTJOIN);
@@ -388,7 +381,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 			int thread = thread(ne.getThread());
 			int object = object(ne.getLock().getLock());
 			boolean notifyAll = ne.isNotifyAll();
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					writeEventType(EventEnum.POSTNOTIFY);
 					out.writeInt(thread);
@@ -405,7 +398,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	@Override
 	public void postSleep(SleepEvent se) {
 		int thread = thread(se.getThread());
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.POSTSLEEP);
@@ -423,7 +416,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(se.getThread());
 			int thread2 = thread(se.getNewThread());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					writeEventType(EventEnum.POSTSTART);
 					out.writeInt(thread);
@@ -441,7 +434,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(we.getThread());
 			int object = object(we.getLock().getLock());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(we.getInfo().getKey());
 					writeEventType(EventEnum.POSTWAIT);
@@ -462,7 +455,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(je.getThread());
 			int thread2 = thread(je.getJoiningThread());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(je.getInfo().getKey());
 					writeEventType(EventEnum.PREJOIN);
@@ -482,7 +475,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		int thread = thread(ne.getThread());
 		int object = object(ne.getLock().getLock());
 		boolean notifyAll = ne.isNotifyAll();
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.PRENOTIFY);
@@ -500,7 +493,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	@Override
 	public void preSleep(SleepEvent se) {
 		int thread = thread(se.getThread());
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.PRESLEEP);
@@ -518,7 +511,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		try {
 			int thread = thread(se.getThread());
 			int thread2 = thread(se.getNewThread());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					writeEventType(EventEnum.PRESTART);
 					out.writeInt(thread);
@@ -532,12 +525,11 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		super.preStart(se);
 	}
 
-
 	@Override
 	public void classInitialized(ClassInitializedEvent ce) {
 		try {
 			int thread = thread(ce.getThread());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(ce.getRRClass().getName());
 					writeEventType(EventEnum.CLASS_INITIALIZED);
@@ -552,13 +544,12 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		super.classInitialized(ce);
 	}
 
-	
 	@Override
 	public void preWait(WaitEvent we) {
 		try {
 			int thread = thread(we.getThread());
 			int object = object(we.getLock().getLock());
-			synchronized(out) {
+			synchronized (out) {
 				if (open) {
 					int key = stringKey(we.getInfo().getKey());
 					writeEventType(EventEnum.PREWAIT);
@@ -574,7 +565,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	}
 
 	public synchronized void visit(ClassInfo x) {
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					int key = stringKey(x.getName().replace("/", "."));
@@ -638,7 +629,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	}
 
 	public void postDoBarrier(BarrierEvent<ReplayBarrier> be) {
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.POSTBARRIER);
@@ -653,7 +644,7 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 	}
 
 	public synchronized void preDoBarrier(BarrierEvent<ReplayBarrier> be) {
-		synchronized(out) {
+		synchronized (out) {
 			if (open) {
 				try {
 					writeEventType(EventEnum.PREBARRIER);
@@ -671,6 +662,5 @@ final public class ReplayLogTool extends Tool implements MetaDataInfoVisitor, Ba
 		// TODO Auto-generated method stub
 		Assert.panic("Implement me");
 	}
-
 
 }

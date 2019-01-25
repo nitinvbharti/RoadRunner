@@ -43,7 +43,7 @@
 
 mkdir -p auto/tools/fasttrack_long
 cp src/tools/fasttrack/*.java auto/tools/fasttrack_long/
-sed -i.bak  -e "s/int\/\*epoch\*\//long\/*epoch*\//g" auto/tools/fasttrack_long/*.java
+sed -i.bak  -e "s/int\/\* epoch \*\//long\/* epoch *\//g" auto/tools/fasttrack_long/*.java
 sed -i.bak  -e "s/VectorClock/LongVectorClock/g" auto/tools/fasttrack_long/*.java
 sed -i.bak  -e "s/Epoch/LongEpoch/g" auto/tools/fasttrack_long/*.java
 sed -i.bak  -e "s/package tools\.fasttrack/package tools.fasttrack_long/g" auto/tools/fasttrack_long/*.java
@@ -62,14 +62,14 @@ rm auto/tools/fasttrack_long/*.bak
 mkdir -p auto/tools/util
 echo "// AUTO-GENERATED --- DO NOT EDIT DIRECTLY " > auto/tools/util/LongVectorClock.java
 cat src/tools/util/VectorClock.java >> auto/tools/util/LongVectorClock.java
-sed -i.bak  -e "s/int\/\*epoch\*\//long\/*epoch*\//g" auto/tools/util/LongVectorClock.java
+sed -i.bak  -e "s/int\/\* epoch \*\//long\/* epoch *\//g" auto/tools/util/LongVectorClock.java
 sed -i.bak  -e "s/VectorClock/LongVectorClock/g" auto/tools/util/LongVectorClock.java
 sed -i.bak  -e "s/Epoch/LongEpoch/g" auto/tools/util/LongVectorClock.java
 rm auto/tools/util/*.bak
 
 echo "// AUTO-GENERATED --- DO NOT EDIT DIRECTLY " > auto/tools/util/LongEpoch.java
 cat src/tools/util/Epoch.java >> auto/tools/util/LongEpoch.java
-sed -i.bak  -e "s/int\/\*epoch\*\//long\/*epoch*\//g" auto/tools/util/LongEpoch.java
-sed -i.bak  -e "s/Integer\/\*epoch\*\//Long\/*epoch*\//g" auto/tools/util/LongEpoch.java
+sed -i.bak  -e "s/int\/\* epoch \*\//long\/* epoch *\//g" auto/tools/util/LongEpoch.java
+sed -i.bak  -e "s/Integer\/\* epoch \*\//Long\/* epoch *\//g" auto/tools/util/LongEpoch.java
 sed -i.bak  -e "s/Epoch/LongEpoch/g" auto/tools/util/LongEpoch.java
 rm auto/tools/util/*.bak

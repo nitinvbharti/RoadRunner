@@ -1,7 +1,7 @@
 Copyright (c) 2010, Cormac Flanagan (University of California, Santa Cruz)
-                    and Stephen Freund (Williams College) 
+                    and Stephen Freund (Williams College)
 
-All rights reserved.  
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 To Install:
 -----------
 
-1. You will need Ant, Java 1.7 or 1.8, and cpp to build RoadRunner. 
+1. You will need Ant, Java 1.7 or 1.8, and cpp to build RoadRunner.
    The $JAVA_HOME environment variable must point to the proper
    Java distribution.  (Depending on the Java version, you may need
    to add tools.jar from the JDK to your classpath in build.xml or
@@ -47,7 +47,7 @@ To Install:
 3. Build the source:
 
 	> cd RoadRunner; ant
-	
+
 To Run:
 -------
 
@@ -55,12 +55,12 @@ To Run:
 
 2. source msetup
 
-	Note: this sets up environment variables and configures 
-	      everything for a specific machine -- change as necessary.  
-	      
+	Note: this sets up environment variables and configures
+	      everything for a specific machine -- change as necessary.
+
 3. Test it:
 
- 
+
 	> javac test/Test.java
 	> rrrun test.Test
 
@@ -70,27 +70,27 @@ To Run:
 
    You should get many race errors on field Test.y.
    Test with FastTrack:
-   
+
    	> rrrun -tool=FT2 test.Test
-	
+
 4.  Look at options:
 
     	 > rrrun -help
 
     You will at least want to look at the following:
 
-     -quiet                         
-     -help                          
-     -classpath={String}            
-     -toolpath={String}             
-     -tool={String}                 
+     -quiet
+     -help
+     -classpath={String}
+     -toolpath={String}
+     -tool={String}
 
-     -classes={StringMatcher}       
-     -fields={StringMatcher}        
-     -methods={StringMatcher}       
+     -classes={StringMatcher}
+     -fields={StringMatcher}
+     -methods={StringMatcher}
 
-     -array={ArrayMode}             
-     -field={FieldMode}             
+     -array={ArrayMode}
+     -field={FieldMode}
 
      -nobarrier
 
@@ -100,20 +100,20 @@ To Run:
 
     Look at rr.tool.Tool abstract class and sample tools for
     implementation info.
-    
+
 
 6.  Running on benchmarks:
 
     When performing comparisons to other analysis platforms, you will
-    need to pay particular attention to several options, including 
-    -array and -field to ensure memory is instrumented as you intend. 
+    need to pay particular attention to several options, including
+    -array and -field to ensure memory is instrumented as you intend.
 
     In addition, RoadRunner includes specialized handling of various
     barrier implementations to facilitate writing analyses that must
     treat barriers specially.  However, it assumes those barriers are
-    correct, which is not the case for some benchmarks, including 
-    the barriers in JavaGrande.  Thus, you will miss errors unless 
-    you specify the "-nobarrier" flag to not treat barrier code 
+    correct, which is not the case for some benchmarks, including
+    the barriers in JavaGrande.  Thus, you will miss errors unless
+    you specify the "-nobarrier" flag to not treat barrier code
     specially.
 
 
@@ -121,16 +121,16 @@ ECLIPSE SUPPORT:
 -----------
 
 After building as described above, you can import the RoadRunner directory
-as an existing project.  
-   
+as an existing project.
+
 Refresh, Clean, etc. should rebuild everything as
 necessary.  The "rrrun script" will pick up any modifications you made.
 
 If adding new Tools, changing abbreviations, tools paths, changing the ClassLoader,
-changing the agent, or doing anything else unusual, you should rebuilt 
-RoadRunner with the build.xml ant script to ensure all the auto-generated 
+changing the agent, or doing anything else unusual, you should rebuilt
+RoadRunner with the build.xml ant script to ensure all the auto-generated
 files are in sync.
 
-There is a sample launch script "scripts/RRMain-tools.launch" to print out all 
+There is a sample launch script "scripts/RRMain-tools.launch" to print out all
 the supported tools from inside Eclipse if you wish to work exclusively
 in the Eclipse environment.

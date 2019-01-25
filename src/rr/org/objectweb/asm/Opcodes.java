@@ -1,45 +1,33 @@
 /***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
+ * ASM: a very small and fast Java bytecode manipulation framework Copyright (c) 2000-2011 INRIA,
+ * France Telecom All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met: 1. Redistributions of source code must retain the
+ * above copyright notice, this list of conditions and the following disclaimer. 2. Redistributions
+ * in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package rr.org.objectweb.asm;
 
-import rr.org.objectweb.asm.ClassReader;
-
 /**
- * Defines the JVM opcodes, access flags and array type codes. This interface
- * does not define all the JVM opcodes because some opcodes are automatically
- * handled. For example, the xLOAD and xSTORE opcodes are automatically replaced
- * by xLOAD_n and xSTORE_n opcodes when possible. The xLOAD_n and xSTORE_n
- * opcodes are therefore not defined in this interface. Likewise for LDC,
- * automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and
- * JSR_W.
- * 
+ * Defines the JVM opcodes, access flags and array type codes. This interface does not define all
+ * the JVM opcodes because some opcodes are automatically handled. For example, the xLOAD and xSTORE
+ * opcodes are automatically replaced by xLOAD_n and xSTORE_n opcodes when possible. The xLOAD_n and
+ * xSTORE_n opcodes are therefore not defined in this interface. Likewise for LDC, automatically
+ * replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -123,28 +111,26 @@ public interface Opcodes {
     int F_FULL = 0;
 
     /**
-     * Represents a compressed frame where locals are the same as the locals in
-     * the previous frame, except that additional 1-3 locals are defined, and
-     * with an empty stack.
+     * Represents a compressed frame where locals are the same as the locals in the previous frame,
+     * except that additional 1-3 locals are defined, and with an empty stack.
      */
     int F_APPEND = 1;
 
     /**
-     * Represents a compressed frame where locals are the same as the locals in
-     * the previous frame, except that the last 1-3 locals are absent and with
-     * an empty stack.
+     * Represents a compressed frame where locals are the same as the locals in the previous frame,
+     * except that the last 1-3 locals are absent and with an empty stack.
      */
     int F_CHOP = 2;
 
     /**
-     * Represents a compressed frame with exactly the same locals as the
-     * previous frame and with an empty stack.
+     * Represents a compressed frame with exactly the same locals as the previous frame and with an
+     * empty stack.
      */
     int F_SAME = 3;
 
     /**
-     * Represents a compressed frame with exactly the same locals as the
-     * previous frame and with a single value on the stack.
+     * Represents a compressed frame with exactly the same locals as the previous frame and with a
+     * single value on the stack.
      */
     int F_SAME1 = 4;
 
