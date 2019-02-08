@@ -1,0 +1,27 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RRMain" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="rr.RRMain" />
+    <module name="RoadRunner" />
+    <option name="PROGRAM_PARAMETERS" value="test.Test" />
+    <option name="VM_PARAMETERS" value="-javaagent:$PROJECT_DIR$/build/jar/rragent.jar -Xmx3g -Xms1g -Xloggc:/dev/stdout -Xbootclasspath/p:$PROJECT_DIR$/classes:$PROJECT_DIR$/jars/java-cup-11a.jar:" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="rr.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="true" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        <ENTRY IS_ENABLED="true" PARSER="env" PATH="msetup.env" />
+      </ENTRIES>
+    </extension>
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="bootstrap-loader" />
+    </method>
+  </configuration>
+</component>
