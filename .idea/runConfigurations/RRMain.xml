@@ -21,7 +21,7 @@
       </ENTRIES>
     </extension>
     <method v="2">
-      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="bootstrap-loader" />
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="clean-build" />
     </method>
   </configuration>
 </component>
