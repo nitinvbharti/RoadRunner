@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+# These two lines are for OS X, to set the max memory to just under
+# the total machine memory
+#GIGS=`system_profiler SPHardwareDataType | grep Memory | cut -f2 -d: | cut -f1 -dG | sed -e "s/ //g" `
+#export JVM_ARGS="-Xmx${GIGS}g -Xms1g"
+export JVM_ARGS="-Xmx3g -Xms1g -Xloggc:/dev/stdout"
+
+
+export PATH=${PATH}:`pwd`/auto/bin:`pwd`/bin
+
+export RR_MODE=FAST
+export RR_HOME=`pwd`
+export RR_TOOLPATH=`pwd`/classes/rr/simple:`pwd`/classes/tools
+
+echo "JAVA_HOME="$JAVA_HOME > msetup.env
+echo "JVM_ARGS="$JVM_ARGS >> msetup.env
+echo "RR_HOME="$RR_HOME  >> msetup.env
+echo "RR_TOOLPATH="$RR_TOOLPATH >> msetup.env
