@@ -2,8 +2,8 @@
   <configuration default="false" name="RRMain" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="rr.RRMain" />
     <module name="RoadRunner" />
-    <option name="PROGRAM_PARAMETERS" value="-tool=HB test.Test" />
-    <option name="VM_PARAMETERS" value="-javaagent:$PROJECT_DIR$/build/jar/rragent.jar -Xmx3g -Xms1g -Xloggc:/dev/stdout -Xbootclasspath/p:$PROJECT_DIR$/classes:$PROJECT_DIR$/jars/java-cup-11a.jar:" />
+    <option name="PROGRAM_PARAMETERS" value="-tool=CP test.Test" />
+    <option name="VM_PARAMETERS" value="-javaagent:$PROJECT_DIR$/build/jar/rragent.jar -Xmx3g -Xms1g -Xloggc:/dev/stdout -Xbootclasspath/p:$PROJECT_DIR$/classes:$PROJECT_DIR$/jars/java-cup-11a.jar:$PROJECT_DIR$/jars/java-json.jar" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="rr.*" />
@@ -22,7 +22,7 @@
     </extension>
     <method v="2">
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="clean-build" />
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_env_variable_setup" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_env" />
     </method>
   </configuration>
 </component>

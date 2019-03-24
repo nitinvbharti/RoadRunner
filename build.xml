@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	<property name="java.home" value="$$JAVA_HOME" />
 	<property name="cup.jar" value="${rr.basedir}/jars/java-cup-11a.jar" />
+	<property name="json.jar" value="${rr.basedir}/jars/java-json.jar" />
 	<property name="jflex.jar" value="${rr.basedir}/jars/JFlex.jar" />
 	<property name="rr.vmargs" value="-javaagent:${jar.dir}/rragent.jar $$JVM_ARGS" />
 
@@ -62,6 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<path id="rr.classpath">
 		<pathelement location="${classes.dir}" />
 		<pathelement location="${cup.jar}" />
+		<pathelement location="${json.jar}" />
 	</path>
 
 	<path id="rr.classpath.jar">
