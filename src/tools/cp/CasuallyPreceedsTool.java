@@ -39,6 +39,7 @@ import acme.util.decorations.DecorationFactory;
 import acme.util.decorations.DefaultValue;
 import acme.util.decorations.NullDefault;
 import acme.util.option.CommandLine;
+import org.json.JSONArray;
 import rr.annotations.Abbrev;
 import rr.barrier.BarrierEvent;
 import rr.barrier.BarrierListener;
@@ -83,7 +84,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 			.makeArrayErrorMessage("HappensBefore");
 
 	static FileWriter fw ;
-	static ArrayList<JSONObject> arrayJsonObject = new ArrayList<>();
+	static JSONArray arrayJsonObject = new JSONArray();
 
 
 	public CasuallyPreceedsTool(String name, Tool next, CommandLine commandLine) {
@@ -300,13 +301,6 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 
 		this.tick(forked);
 		this.tick(td);
-		try{
-			fw = new FileWriter("CP.log");
-		}
-		catch(Exception e)
-		{
-
-		}
 		super.preStart(se);
 	}
 
@@ -421,7 +415,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 			obj.put("vc_r",VCP.rd);
 			obj.put("vc_w",VCP.wr);
 			//fw.write(obj.toString());
-			arrayJsonObject.add(obj);
+			arrayJsonObject.put(obj);
 		}
 
 		catch(Exception e)
@@ -434,9 +428,10 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 
 	public void fini()
 	{
-		System.out.println("Finally got called");
 		try {
+			fw = new FileWriter("CP.log");
 			fw.write(arrayJsonObject.toString());
+			fw.flush();
 		}
 
 		catch(Exception e)
