@@ -158,6 +158,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 		synchronized (shadowLock) {
 			get(currentThread).max(get(shadowLock));
 		}
+		System.out.println("hey lock acquired");
 		writeToFile(currentThread.getTid(),2,(new Integer(ae.getInfo().getId())).toString(),get(currentThread),null);
 		// can also send location here
 		super.acquire(ae);
@@ -412,10 +413,17 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 			obj.put("e_type",e_type);
 			obj.put("var_name",varname);
 			obj.put("vc",VC);
-			obj.put("vc_r",VCP.rd);
-			obj.put("vc_w",VCP.wr);
+			if(VCP!=null) {
+				obj.put("vc_r", VCP.rd);
+				obj.put("vc_w", VCP.wr);
+			}
+			else{
+				obj.put("vc_r","");
+				obj.put("vc_w","");
+			}
 			//fw.write(obj.toString());
 			arrayJsonObject.put(obj);
+			System.out.println("the object generated " + obj.toString());
 		}
 
 		catch(Exception e)
@@ -429,7 +437,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 	public void fini()
 	{
 		try {
-			fw = new FileWriter("CP.log");
+			fw = new FileWriter("Figure1.log");
 			fw.write(arrayJsonObject.toString());
 			fw.flush();
 		}
