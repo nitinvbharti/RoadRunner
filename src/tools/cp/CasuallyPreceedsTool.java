@@ -49,6 +49,7 @@ import rr.error.ErrorMessages;
 import rr.event.*;
 import rr.event.AccessEvent.Kind;
 import rr.meta.ArrayAccessInfo;
+import rr.meta.FieldAccessInfo;
 import rr.meta.FieldInfo;
 import rr.state.ShadowLock;
 import rr.state.ShadowThread;
@@ -85,7 +86,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 
 	static FileWriter fw ;
 	static JSONArray arrayJsonObject = new JSONArray();
-
+	static ArrayList output = new ArrayList();
 
 	public CasuallyPreceedsTool(String name, Tool next, CommandLine commandLine) {
 		super(name, next, commandLine);
@@ -158,7 +159,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 		synchronized (shadowLock) {
 			get(currentThread).max(get(shadowLock));
 		}
-		writeToFile(currentThread.getTid(),2,(new Integer(ae.getInfo().getId())).toString(),get(currentThread),null);
+		writeToFile(currentThread.getTid(),2,(new Integer(shadowLock.hashCode())).toString(),get(currentThread),null);
 		// can also send location here
 		super.acquire(ae);
 	}
@@ -170,8 +171,7 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 		synchronized (shadowLock) {
 			get(shadowLock).copy(get(currentThread));
 		}
-		writeToFile(currentThread.getTid(),3,(new Integer(re.getInfo().getId())).toString(),get(currentThread),null);
-
+		writeToFile(currentThread.getTid(),3,(new Integer(shadowLock.hashCode())).toString(),get(currentThread),null);
 		tick(currentThread);
 		super.release(re);
 	}
@@ -214,8 +214,22 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 			//Util.log("p=" + p);
 			// Util.log("t=" + cv);
 			final int tid = currentThread.getTid();
-			String fieldName = ((FieldAccessEvent) fae).getInfo().getField().getName();
+			Object hashCodeId = fae.getTarget();
+			FieldInfo variableFieldInfo = ((FieldAccessEvent) fae).getInfo().getField();
+			String fieldName = variableFieldInfo.getName();
 
+			// instance variable.
+			if(hashCodeId!=null)
+			{
+				fieldName = new Integer(hashCodeId.hashCode()).toString() + '_' + fieldName;
+			}
+			else
+			{
+				String className = variableFieldInfo.getOwner().getName();
+				fieldName = className  + '_' +  fieldName ;
+			}
+
+			//System.out.println("Field name is " + fieldName);
 			if(isWrite)
 				writeToFile(tid,1,fieldName,cv,p);
 			else
@@ -435,8 +449,9 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 	public void fini()
 	{
 		try {
-			fw = new FileWriter("Figure1.log");
+			fw = new FileWriter("Test.log");
 			fw.write(arrayJsonObject.toString());
+            //fw.write(output.toString());
 			fw.flush();
 		}
 
@@ -446,6 +461,15 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 		}
 
 	}
+
+	public static synchronized  void writeAnything(String in){
+
+    output.add(in);
+
+
+
+	}
+
 
 }
 
