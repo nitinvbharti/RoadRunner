@@ -1,0 +1,29 @@
+TestCase1.log
+WR on the same variable by the same thread
+No Race
+
+TestCase2.log
+Conflicting event between threads.
+Race on variable phi_x
+
+TestCase3.log
+Thread1 in CS and no conflicting events between threads
+No Race
+
+TestCase4.log
+Thread1 in CS and conflicting events between threads
+Race on variable phi_x
+
+TestCase5.log
+Thread1 in CS, Thread2 in CS and conflicting events between threads
+No Race
+
+TestCase6.log
+Thread1 in CS, Thread2 in CS on different variable and conflicting events between threads
+Race on variable phi_x
+
+TestCase7.log
+Thread1 reads phi_x
+Thread1 in CS and reads phi_y
+Thread2 in CS on same variable and reads phi_x 
+Race on variable phi_x
