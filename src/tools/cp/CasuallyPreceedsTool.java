@@ -58,6 +58,7 @@ import rr.tool.Tool;
 import tools.util.VectorClock;
 import tools.util.VectorClockPair;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -448,8 +449,9 @@ public final class CasuallyPreceedsTool extends Tool implements BarrierListener<
 
 	public void fini()
 	{
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		try {
-			fw = new FileWriter("Test.log");
+			fw = new FileWriter(String.valueOf(timestamp.getTime()));
 			fw.write(arrayJsonObject.toString());
             //fw.write(output.toString());
 			fw.flush();
