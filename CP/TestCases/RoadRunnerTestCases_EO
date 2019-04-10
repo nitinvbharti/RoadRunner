@@ -1,0 +1,12 @@
+Expected Outcomes of the Test classes provided by the RoadRunner Framework:
+Figure1: 
+Race on variable Figure1_x
+
+Figure2_a:
+No Race as Thread1 and Thread3 got the same thread id 
+
+Figure2_b:
+No Race as per CP as both read and write to x variable are in CP with each other due to rule b and rule c
+
+Figure4a:
+No Race in CP due to both access of variables x and y are in CP.
